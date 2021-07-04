@@ -30,6 +30,7 @@ class LispQuit(Exception):
 def canonical(s):
     return s.lower()
 
+
 class Environment:
     def __init__(self, bindings=[], previous=None):
         self._previous = previous
@@ -770,7 +771,7 @@ class Reader:
             return s.replace('\\"', '"').replace('\\\\', '\\')
         # p = parse_token(r'"[^"]*"')
         p = self.parse_token(r'"(?:[^"\\]|\\.)*"')
-        return parse_sexp_wrap(p, lambda x: VString(x))(s)
+        return parse_sexp_wrap(p, lambda x: VString(x[1:-1]))(s)
 
     def parse_boolean(self, s):
         p = self.parse_token(r'#(?:t|f|T|F)')
