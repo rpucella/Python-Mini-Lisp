@@ -762,7 +762,7 @@ class Reader:
         return parse_sexp_wrap(p, lambda x: VNumber(int(x)))(s)
     
     def parse_symbol(self, s):
-        identifier = r'[A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
+        identifier = r'[^"\s#()]+'   # [A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
         p = self.parse_token(identifier)
         return parse_sexp_wrap(p, lambda x: VSymbol(x))(s)
 
@@ -774,14 +774,14 @@ class Reader:
         return parse_sexp_wrap(p, lambda x: VString(x[1:-1]))(s)
 
     def parse_boolean(self, s):
-        p = self.parse_token(r'#(?:t|f|T|F)')
-        return parse_sexp_wrap(p, lambda x: VBoolean(x.lower(x) == '#t'))(s)
+        p = self.parse_token(r'#([tT][rR][uU][eE])|#([fF][aA][lL][sS][eE])')
+        return parse_sexp_wrap(p, lambda x: VBoolean(x.lower() == '#true'))(s)
 
     def parse_sexp(self, s):
         p = parse_first([self.parse_number,
-                         self.parse_symbol,
                          self.parse_string,
                          self.parse_boolean,
+                         self.parse_symbol,
                          parse_sexp_wrap(parse_seq([self.parse_token(r"'"),
                                                     self.parse_sexp]),
                                          lambda x: VCons(VSymbol('quote'), VCons(x[1], VEmpty()))),
