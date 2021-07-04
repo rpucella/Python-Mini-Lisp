@@ -290,12 +290,12 @@ class VString(Value):
         return v.is_string() and self.value() == v.value()
     
     
-class VInteger(Value):
+class VNumber(Value):
     def __init__(self, v):
         self._value = v
 
     def __repr__(self):
-        return 'VInteger({})'.format(self._value)
+        return 'VNumber({})'.format(self._value)
 
     def __str__(self):
         return str(self._value)
@@ -555,7 +555,7 @@ class Integer(Expression):
         return 'Integer({})'.format(self._value)
                             
     def eval(self, env):
-        return VInteger(self._value)
+        return VNumber(self._value)
 
     
 class Boolean(Expression):
@@ -719,7 +719,7 @@ class SAtom(SExpression):
         if content[0] == '"' and content[-1] == '"':
             return VString(content[1:-1])
         if self.match_token(r'-?[0-9]+'):
-            return VInteger(int(content))
+            return VNumber(int(content))
         if self.match_token(r'#t'):
             return VBoolean(True)
         if self.match_token(r'#f'):
@@ -1289,7 +1289,7 @@ def prim_plus(args):
     for arg in args:
         check_arg_type('+', arg, lambda v:v.is_number())
         v += arg.value()
-    return VInteger(v)
+    return VNumber(v)
 
 @primitive('*', 0)
 def prim_times(args):
@@ -1297,7 +1297,7 @@ def prim_times(args):
     for arg in args:
         check_arg_type('*', arg, lambda v:v.is_number())
         v *= arg.value()
-    return VInteger(v)
+    return VNumber(v)
 
 @primitive('-', 1)
 def prim_minus(args):
@@ -1307,9 +1307,9 @@ def prim_minus(args):
         for arg in args[1:]:
             check_arg_type('-', arg, lambda v:v.is_number())
             v -= arg.value()
-        return VInteger(v)
+        return VNumber(v)
     else:
-        return VInteger(-v)
+        return VNumber(-v)
 
 def _num_predicate(arg1, arg2, sym, pred):
     check_arg_type(sym, arg1, lambda v:v.is_number())
@@ -1351,7 +1351,7 @@ def prim_string_append(args):
 @primitive('string-length', 1, 1)
 def prim_string_length(args):
     check_arg_type('string-length', args[0], lambda v:v.is_string())
-    return VInteger(len(args[0].value()))
+    return VNumber(len(args[0].value()))
 
 @primitive('string-lower', 1, 1)
 def prim_string_lower(args):
@@ -1438,7 +1438,7 @@ def prim_length(args):
     while not curr.is_empty():
         count += 1
         curr = curr.cdr()
-    return VInteger(count)
+    return VNumber(count)
 
 @primitive('nth', 2, 2)
 def prim_nth(args):

@@ -109,10 +109,10 @@ class TestValueBoolean(TestCase):
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VBoolean(True)), True)
         self.assertEqual(b.is_equal(mlisp.VBoolean(False)), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VBoolean(True)), True)
         self.assertEqual(b.is_eq(mlisp.VBoolean(False)), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.value(), True)
 
     def test_false(self):
@@ -134,10 +134,10 @@ class TestValueBoolean(TestCase):
         self.assertEqual(b.is_true(), False)
         self.assertEqual(b.is_equal(mlisp.VBoolean(True)), False)
         self.assertEqual(b.is_equal(mlisp.VBoolean(False)), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VBoolean(True)), False)
         self.assertEqual(b.is_eq(mlisp.VBoolean(False)), True)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), False)
@@ -165,10 +165,10 @@ class TestValueString(TestCase):
         self.assertEqual(b.is_true(), False)
         self.assertEqual(b.is_equal(mlisp.VString('')), True)
         self.assertEqual(b.is_equal(mlisp.VString('Alice')), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VString('')), False)
         self.assertEqual(b.is_eq(mlisp.VString('Alice')), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), '')
@@ -193,10 +193,10 @@ class TestValueString(TestCase):
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VString('')), False)
         self.assertEqual(b.is_equal(mlisp.VString('Alice')), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VString('')), False)
         self.assertEqual(b.is_eq(mlisp.VString('Alice')), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), 'Alice')
@@ -216,7 +216,7 @@ class TestValueInteger(TestCase):
 
     def test_zero(self):
         # zero
-        b = mlisp.VInteger(0)
+        b = mlisp.VNumber(0)
         self.assertEqual(str(b), '0')
         self.assertEqual(b.display(), '0')
         self.assertEqual(b.type(), 'number')
@@ -232,11 +232,11 @@ class TestValueInteger(TestCase):
         self.assertEqual(b.is_atom(), True)
         self.assertEqual(b.is_list(), False)
         self.assertEqual(b.is_true(), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(0)), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(0)), True)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(mlisp.VString('Alice')), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(0)), True)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(0)), True)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VString('Alice')), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
@@ -244,7 +244,7 @@ class TestValueInteger(TestCase):
 
     def test_non_zero(self):
         # non-zero
-        b = mlisp.VInteger(42)
+        b = mlisp.VNumber(42)
         self.assertEqual(str(b), '42')
         self.assertEqual(b.display(), '42')
         self.assertEqual(b.type(), 'number')
@@ -260,11 +260,11 @@ class TestValueInteger(TestCase):
         self.assertEqual(b.is_atom(), True)
         self.assertEqual(b.is_list(), False)
         self.assertEqual(b.is_true(), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(0)), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), True)
+        self.assertEqual(b.is_equal(mlisp.VNumber(0)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), True)
         self.assertEqual(b.is_equal(mlisp.VString('Alice')), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(0)), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), True)
+        self.assertEqual(b.is_eq(mlisp.VNumber(0)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), True)
         self.assertEqual(b.is_eq(mlisp.VString('Alice')), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
@@ -291,9 +291,9 @@ class TestValueNil(TestCase):
         self.assertEqual(b.is_list(), False)
         self.assertEqual(b.is_true(), False)
         self.assertEqual(b.is_equal(mlisp.VNil()), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VNil()), True)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertIs(b.value(), None)
@@ -303,7 +303,7 @@ class TestValueReference(TestCase):
 
     def test_num(self):
         # num
-        val = mlisp.VInteger(42)
+        val = mlisp.VNumber(42)
         r = mlisp.VReference(val)
         self.assertEqual(str(r), '#(ref 42)')
         self.assertEqual(r.display(), '#(ref 42)')
@@ -321,12 +321,12 @@ class TestValueReference(TestCase):
         self.assertEqual(r.is_list(), False)
         self.assertEqual(r.is_true(), True)
         self.assertEqual(r.is_equal(mlisp.VReference(val)), True)
-        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VInteger(42))), True)
-        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VInteger(0))), False)
+        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VNumber(42))), True)
+        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VNumber(0))), False)
         self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VString("Alice"))), False)
         self.assertEqual(r.is_eq(mlisp.VReference(val)), False)
-        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VInteger(42))), False)
-        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VInteger(0))), False)
+        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VNumber(42))), False)
+        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VNumber(0))), False)
         self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VString("Alice"))), False)
         self.assertEqual(r.is_equal(r), True)
         self.assertEqual(r.is_eq(r), True)
@@ -351,11 +351,11 @@ class TestValueReference(TestCase):
         self.assertEqual(r.is_atom(), False)
         self.assertEqual(r.is_list(), False)
         self.assertEqual(r.is_true(), True)
-        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VInteger(42))), False)
+        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VNumber(42))), False)
         self.assertEqual(r.is_equal(mlisp.VReference(val)), True)
         self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VString("Alice"))), True)
         self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VString("Bob"))), False)
-        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VInteger(42))), False)
+        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VNumber(42))), False)
         self.assertEqual(r.is_eq(mlisp.VReference(val)), False)
         self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VString("Alice"))), False)
         self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VString("Bob"))), False)
@@ -365,7 +365,7 @@ class TestValueReference(TestCase):
 
     def test_nested(self):
         # nested
-        val = mlisp.VReference(mlisp.VInteger(42))
+        val = mlisp.VReference(mlisp.VNumber(42))
         r = mlisp.VReference(val)
         self.assertEqual(str(r), '#(ref #(ref 42))')
         self.assertEqual(r.display(), '#(ref #(ref 42))')
@@ -383,11 +383,11 @@ class TestValueReference(TestCase):
         self.assertEqual(r.is_list(), False)
         self.assertEqual(r.is_true(), True)
         self.assertEqual(r.is_equal(mlisp.VReference(val)), True)
-        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VReference(mlisp.VInteger(42)))), True)
-        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VInteger(42))), False)
+        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VReference(mlisp.VNumber(42)))), True)
+        self.assertEqual(r.is_equal(mlisp.VReference(mlisp.VNumber(42))), False)
         self.assertEqual(r.is_eq(mlisp.VReference(val)), False)
-        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VReference(mlisp.VInteger(42)))), False)
-        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VInteger(42))), False)
+        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VReference(mlisp.VNumber(42)))), False)
+        self.assertEqual(r.is_eq(mlisp.VReference(mlisp.VNumber(42))), False)
         self.assertEqual(r.is_equal(r), True)
         self.assertEqual(r.is_eq(r), True)
         self.assertEqual(r.value(), val)
@@ -413,11 +413,11 @@ class TestValueEmpty(TestCase):
         self.assertEqual(b.is_list(), True)
         self.assertEqual(b.is_true(), False)
         self.assertEqual(b.is_equal(mlisp.VEmpty()), True)
-        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VEmpty()), True)
-        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value() is None, True)
@@ -427,7 +427,7 @@ class TestValueEmpty(TestCase):
 class TestValueCons(TestCase):
     
     def test_cons_1(self):
-        car = mlisp.VInteger(42)
+        car = mlisp.VNumber(42)
         cdr = mlisp.VEmpty()
         b = mlisp.VCons(car, cdr)
         self.assertEqual(str(b), '(42)')
@@ -446,11 +446,11 @@ class TestValueCons(TestCase):
         self.assertEqual(b.is_list(), True)
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VEmpty()), False)
-        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), True)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VEmpty()), False)
-        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), (car, cdr))
@@ -459,8 +459,8 @@ class TestValueCons(TestCase):
         self.assertEqual(b.cdr(), cdr)
 
     def test_cons_2(self):
-        car = mlisp.VInteger(42)
-        cadr = mlisp.VInteger(84)
+        car = mlisp.VNumber(42)
+        cadr = mlisp.VNumber(84)
         cddr = mlisp.VEmpty()
         c = mlisp.VCons(cadr, cddr)
         b = mlisp.VCons(car, c)
@@ -480,14 +480,14 @@ class TestValueCons(TestCase):
         self.assertEqual(b.is_list(), True)
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VEmpty()), False)
-        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), False)
-        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VInteger(42), mlisp.VCons(mlisp.VInteger(84), mlisp.VEmpty()))), True)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), False)
+        self.assertEqual(b.is_equal(mlisp.VCons(mlisp.VNumber(42), mlisp.VCons(mlisp.VNumber(84), mlisp.VEmpty()))), True)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VEmpty()), False)
-        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())), False)
-        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VInteger(42), mlisp.VCons(mlisp.VInteger(84), mlisp.VEmpty()))), False)
-        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VInteger(42), c)), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())), False)
+        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VNumber(42), mlisp.VCons(mlisp.VNumber(84), mlisp.VEmpty()))), False)
+        self.assertEqual(b.is_eq(mlisp.VCons(mlisp.VNumber(42), c)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), (car, c))
@@ -501,8 +501,8 @@ class TestValuePrimitive(TestCase):
     def test_primitive(self):
         def prim (args):
             return (args[0], args[1])
-        i = mlisp.VInteger(42)
-        j = mlisp.VInteger(0)
+        i = mlisp.VNumber(42)
+        j = mlisp.VNumber(0)
         b = mlisp.VPrimitive('test', prim, 2)
         self.assertEqual(str(b).startswith('#[prim '), True)
         self.assertEqual(b.display().startswith('#[prim '), True)
@@ -521,10 +521,10 @@ class TestValuePrimitive(TestCase):
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VPrimitive('test', prim, 2)), False)
         self.assertEqual(b.is_equal(mlisp.VPrimitive('test', lambda args: 0, 2)), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VPrimitive('test', prim, 2)), False)
         self.assertEqual(b.is_equal(mlisp.VPrimitive('test2', lambda args: 0, 2)), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), prim)
@@ -553,11 +553,11 @@ class TestValueSymbol(TestCase):
         self.assertEqual(b.is_equal(mlisp.VSymbol('Alice')), True)
         self.assertEqual(b.is_equal(mlisp.VSymbol('alice')), True)
         self.assertEqual(b.is_equal(mlisp.VSymbol('Bob')), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VSymbol('Alice')), True)
         self.assertEqual(b.is_eq(mlisp.VSymbol('alice')), True)
         self.assertEqual(b.is_eq(mlisp.VSymbol('Bob')), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value() == 'alice', True)
@@ -592,10 +592,10 @@ class TestValueFunction(TestCase):
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VFunction([], mlisp.Integer(42), mlisp.Environment())), False)
         self.assertEqual(b.is_equal(mlisp.VFunction([], mlisp.Integer(84), mlisp.Environment())), False)
-        self.assertEqual(b.is_equal(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_equal(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_eq(mlisp.VFunction([], mlisp.Integer(42), mlisp.Environment())), False)
         self.assertEqual(b.is_eq(mlisp.VFunction([], mlisp.Integer(84), mlisp.Environment())), False)
-        self.assertEqual(b.is_eq(mlisp.VInteger(42)), False)
+        self.assertEqual(b.is_eq(mlisp.VNumber(42)), False)
         self.assertEqual(b.is_equal(b), True)
         self.assertEqual(b.is_eq(b), True)
         self.assertEqual(b.value(), ([], i, e))
@@ -609,7 +609,7 @@ class TestValueFunction(TestCase):
         e = mlisp.Environment()
         b = mlisp.VFunction(['x', 'y'], i, e)
         self.assertEqual(b.value(), (['x', 'y'], i, e))
-        result = b.apply([mlisp.VInteger(0), mlisp.VInteger(0)])
+        result = b.apply([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(result.is_number(), True)
         self.assertEqual(result.value(), 42)
 
@@ -619,17 +619,17 @@ class TestValueFunction(TestCase):
         e = mlisp.Environment()
         b = mlisp.VFunction(['x', 'y'], i, e)
         self.assertEqual(b.value(), (['x', 'y'], i, e))
-        result = b.apply([mlisp.VInteger(42), mlisp.VInteger(0)])
+        result = b.apply([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(result.is_number(), True)
         self.assertEqual(result.value(), 42)
 
     def test_2_args_env(self):
         # 2 arguments, using environment
         i = mlisp.Symbol('z')
-        e = mlisp.Environment(bindings=[('z', mlisp.VInteger(42))])
+        e = mlisp.Environment(bindings=[('z', mlisp.VNumber(42))])
         b = mlisp.VFunction(['x', 'y'], i, e)
         self.assertEqual(b.value(), (['x', 'y'], i, e))
-        result = b.apply([mlisp.VInteger(0), mlisp.VInteger(0)])
+        result = b.apply([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(result.is_number(), True)
         self.assertEqual(result.value(), 42)
 
@@ -728,7 +728,7 @@ class TestSExp(TestCase):
         v = mlisp.VString('Test\u00e9')
         self.assertEqual(mlisp.SExpression.from_value(v).is_atom(), True)
         self.assertEqual(mlisp.SExpression.from_value(v).content(), '"Test\u00e9"')
-        v = mlisp.VInteger(42)
+        v = mlisp.VNumber(42)
         self.assertEqual(mlisp.SExpression.from_value(v).is_atom(), True)
         self.assertEqual(mlisp.SExpression.from_value(v).content(), '42')
         #v = mlisp.VNil()
@@ -742,7 +742,7 @@ class TestSExp(TestCase):
         self.assertEqual(mlisp.SExpression.from_value(v).content(), 'test\u00e9')
         v = mlisp.VEmpty()
         self.assertEqual(mlisp.SExpression.from_value(v).is_empty(), True)
-        v = mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())
+        v = mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())
         self.assertEqual(mlisp.SExpression.from_value(v).is_cons(), True)
         self.assertEqual(mlisp.SExpression.from_value(v).content()[0].is_atom(), True)
         self.assertEqual(mlisp.SExpression.from_value(v).content()[0].content(), '42')
@@ -760,7 +760,7 @@ class TestSExp(TestCase):
 class TestExp(TestCase):
 
     def test_symbol(self):
-        env = mlisp.Environment(bindings=[('Alice', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('Alice', mlisp.VNumber(42))])
         e = mlisp.Symbol('Alice')
         v = e.eval(env)
         self.assertEqual(v.is_number(), True)
@@ -814,7 +814,7 @@ class TestExp(TestCase):
 
     def test_if(self):
         # then branch
-        env = mlisp.Environment([('a', mlisp.VInteger(42))])
+        env = mlisp.Environment([('a', mlisp.VNumber(42))])
         e = mlisp.If(mlisp.Boolean(True), mlisp.Symbol('a'), mlisp.Symbol('b'))
         v = e.eval(env)
         self.assertEqual(v.is_number(), True)
@@ -832,15 +832,15 @@ class TestExp(TestCase):
         e = mlisp.Lambda(['a', 'b'], mlisp.Symbol('a'))
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # environment
-        env = mlisp.Environment(bindings=[('c', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('c', mlisp.VNumber(42))])
         e = mlisp.Lambda(['a', 'b'], mlisp.Symbol('c'))
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(1), mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(1), mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
@@ -849,16 +849,16 @@ class TestExp(TestCase):
         # simple
         env = mlisp.Environment()
         f = mlisp.VFunction(['x', 'y'], mlisp.Symbol('x'), env)
-        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VInteger(42)), ('b', mlisp.VInteger(0))])
+        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VNumber(42)), ('b', mlisp.VNumber(0))])
         e = mlisp.Apply(mlisp.Symbol('f'),[mlisp.Symbol('a'), mlisp.Symbol('b')])
         v = e.eval(env)
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
         # static vs dynamic binding
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         f = mlisp.VFunction(['x', 'y'], mlisp.Symbol('a'), env)
-        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VInteger(84)), ('b', mlisp.VInteger(0))])
+        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VNumber(84)), ('b', mlisp.VNumber(0))])
         e = mlisp.Apply(mlisp.Symbol('f'),[mlisp.Symbol('a'), mlisp.Symbol('b')])
         v = e.eval(env)
         self.assertEqual(v.is_number(), True)
@@ -938,7 +938,7 @@ class TestExp(TestCase):
     # maybe use FakeExps for everything?
 
     def test_do(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         e = mlisp.Do([])
         v = e.eval(env)
@@ -967,7 +967,7 @@ class TestExp(TestCase):
 
 
     def test_letrec(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         e = mlisp.LetRec([], mlisp.Symbol('a'))
         v = e.eval(env)
@@ -979,7 +979,7 @@ class TestExp(TestCase):
                         mlisp.Apply(mlisp.Symbol('one'), [mlisp.Integer(0), mlisp.Integer(0)]))                    
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # many / two -> one
@@ -988,12 +988,12 @@ class TestExp(TestCase):
                         mlisp.Apply(mlisp.Symbol('two'), [mlisp.Integer(0), mlisp.Integer(0)]))                    
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
     def test_sexp_to_exp(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # symbol
         s = mlisp.SAtom('a')
         v = s.to_expression().eval(env)
@@ -1178,14 +1178,14 @@ class TestExpParsing(TestCase):
 
     
     def test_exp_parse_symbol(self):
-        env = mlisp.Environment(bindings=[('Alice', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('Alice', mlisp.VNumber(42))])
         inp = _make_sexp('Alice')
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # accents
-        env = mlisp.Environment(bindings=[('Test\u00e9', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('Test\u00e9', mlisp.VNumber(42))])
         inp = _make_sexp('Test\u00e9')
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
@@ -1233,7 +1233,7 @@ class TestExpParsing(TestCase):
 
     def test_exp_parse_if(self):
         # then branch
-        env = mlisp.Environment([('a', mlisp.VInteger(42))])
+        env = mlisp.Environment([('a', mlisp.VNumber(42))])
         inp = _make_sexp(['if', '#t', 'a', '#f'])
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
@@ -1254,7 +1254,7 @@ class TestExpParsing(TestCase):
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
@@ -1262,7 +1262,7 @@ class TestExpParsing(TestCase):
     def test_exp_parse_apply(self):
         env = mlisp.Environment()
         f = mlisp.VFunction(['x', 'y'], mlisp.Symbol('x'), env)
-        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VInteger(42)), ('b', mlisp.VInteger(0))])
+        env = mlisp.Environment(bindings=[('f', f), ('a', mlisp.VNumber(42)), ('b', mlisp.VNumber(0))])
         inp = _make_sexp(['f', 'a', 'b'])
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
@@ -1294,7 +1294,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_do(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['do'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1315,7 +1315,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_letrec(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['letrec', [], 'a'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1329,13 +1329,13 @@ class TestExpParsing(TestCase):
         e = mlisp.Parser().parse_exp(inp)
         v = e.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
 
     def test_exp_parse_let(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['let', [], 'a'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1356,7 +1356,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_letstar(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['let*', [], 'a'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1377,7 +1377,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_and(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['and'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1413,7 +1413,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_or(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         # empty
         inp = _make_sexp(['or'])
         e = mlisp.Parser().parse_exp(inp)
@@ -1449,7 +1449,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_loop(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42)),
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42)),
                                          ('=', mlisp.VPrimitive('=', mlisp.prim_numequal, 2)),
                                          ('+', mlisp.VPrimitive('+', mlisp.prim_plus, 2))])
         inp = _make_sexp(['loop', 's', [['n', 'a'], ['sum', '0']],
@@ -1462,7 +1462,7 @@ class TestExpParsing(TestCase):
 
 
     def test_exp_parse_funrec(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42)),
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42)),
                                          ('=', mlisp.VPrimitive('=', mlisp.prim_numequal, 2)),
                                          ('+', mlisp.VPrimitive('+', mlisp.prim_plus, 2))])
         inp = _make_sexp([['funrec', 's', ['n', 'sum'],
@@ -1491,7 +1491,7 @@ class TestDeclarationParsing(TestCase):
         self.assertEqual(v.value(), 42)
 
     def test_parse_defun(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         inp = _make_sexp(['def', ['FOO', 'A', 'B'], 'a'])
         p = mlisp.Parser().parse_defun(inp)
         self.assertEqual(type(p), type((1, 2)))
@@ -1517,7 +1517,7 @@ class TestDeclarationParsing(TestCase):
 
 
     def test_parse_decl_defun(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VInteger(42))])
+        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
         inp = _make_sexp(['def', ['FOO', 'A', 'B'], 'a'])
         r = mlisp.Parser().parse(inp)
         self.assertEqual(type(r), type((1, 2)))
@@ -1550,7 +1550,7 @@ class TestDeclarationParsing(TestCase):
         p = r[1]
         v = p.eval(env)
         self.assertEqual(v.is_function(), True)
-        v = v.apply([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = v.apply([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
@@ -1568,10 +1568,10 @@ class TestOperations(TestCase):
         v = mlisp.prim_type([mlisp.VString('Alice')])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'string')
-        v = mlisp.prim_type([mlisp.VInteger(42)])
+        v = mlisp.prim_type([mlisp.VNumber(42)])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'number')
-        v = mlisp.prim_type([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_type([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'ref')
         v = mlisp.prim_type([mlisp.VNil()])
@@ -1580,7 +1580,7 @@ class TestOperations(TestCase):
         v = mlisp.prim_type([mlisp.VEmpty()])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'empty-list')
-        v = mlisp.prim_type([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_type([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'cons-list')
         def prim (args):
@@ -1600,13 +1600,13 @@ class TestOperations(TestCase):
         v = mlisp.prim_plus([])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 0)
-        v = mlisp.prim_plus([mlisp.VInteger(42)])
+        v = mlisp.prim_plus([mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_plus([mlisp.VInteger(42), mlisp.VInteger(84)])
+        v = mlisp.prim_plus([mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 + 84)
-        v = mlisp.prim_plus([mlisp.VInteger(42), mlisp.VInteger(84), mlisp.VInteger(168)])
+        v = mlisp.prim_plus([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 + 84 + 168)
 
@@ -1615,100 +1615,100 @@ class TestOperations(TestCase):
         v = mlisp.prim_times([])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 1)
-        v = mlisp.prim_times([mlisp.VInteger(42)])
+        v = mlisp.prim_times([mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_times([mlisp.VInteger(42), mlisp.VInteger(84)])
+        v = mlisp.prim_times([mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 * 84)
-        v = mlisp.prim_times([mlisp.VInteger(42), mlisp.VInteger(84), mlisp.VInteger(168)])
+        v = mlisp.prim_times([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 * 84 * 168)
 
 
     def test_prim_minus(self):
-        v = mlisp.prim_minus([mlisp.VInteger(42)])
+        v = mlisp.prim_minus([mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), -42)
-        v = mlisp.prim_minus([mlisp.VInteger(42), mlisp.VInteger(84)])
+        v = mlisp.prim_minus([mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 - 84)
-        v = mlisp.prim_minus([mlisp.VInteger(42), mlisp.VInteger(84), mlisp.VInteger(168)])
+        v = mlisp.prim_minus([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 - 84 - 168)
 
 
     def test_prim_numequal(self):
-        v = mlisp.prim_numequal([mlisp.VInteger(0), mlisp.VInteger(42)])
+        v = mlisp.prim_numequal([mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numequal([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = mlisp.prim_numequal([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numequal([mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_numequal([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numequal([mlisp.VInteger(42), mlisp.VInteger(42)])
+        v = mlisp.prim_numequal([mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_numless(self):
-        v = mlisp.prim_numless([mlisp.VInteger(0), mlisp.VInteger(42)])
+        v = mlisp.prim_numless([mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numless([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = mlisp.prim_numless([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numless([mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_numless([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numless([mlisp.VInteger(42), mlisp.VInteger(42)])
+        v = mlisp.prim_numless([mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_numlesseq(self):
-        v = mlisp.prim_numlesseq([mlisp.VInteger(0), mlisp.VInteger(42)])
+        v = mlisp.prim_numlesseq([mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numlesseq([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = mlisp.prim_numlesseq([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numlesseq([mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_numlesseq([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numlesseq([mlisp.VInteger(42), mlisp.VInteger(42)])
+        v = mlisp.prim_numlesseq([mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_numgreater(self):
-        v = mlisp.prim_numgreater([mlisp.VInteger(0), mlisp.VInteger(42)])
+        v = mlisp.prim_numgreater([mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreater([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = mlisp.prim_numgreater([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreater([mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_numgreater([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreater([mlisp.VInteger(42), mlisp.VInteger(42)])
+        v = mlisp.prim_numgreater([mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_numgreatereq(self):
-        v = mlisp.prim_numgreatereq([mlisp.VInteger(0), mlisp.VInteger(42)])
+        v = mlisp.prim_numgreatereq([mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreatereq([mlisp.VInteger(42), mlisp.VInteger(0)])
+        v = mlisp.prim_numgreatereq([mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreatereq([mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_numgreatereq([mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreatereq([mlisp.VInteger(42), mlisp.VInteger(42)])
+        v = mlisp.prim_numgreatereq([mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
@@ -1720,10 +1720,10 @@ class TestOperations(TestCase):
         v = mlisp.prim_not([mlisp.VBoolean(False)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VInteger(0)])
+        v = mlisp.prim_not([mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VInteger(42)])
+        v = mlisp.prim_not([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_not([mlisp.VString('')])
@@ -1735,7 +1735,7 @@ class TestOperations(TestCase):
         v = mlisp.prim_not([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_not([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
@@ -1798,28 +1798,28 @@ class TestOperations(TestCase):
         v = mlisp.prim_string_substring([mlisp.VString('Alice')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(0)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(1)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(1)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'lice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(2)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(2)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'ice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(0), mlisp.VInteger(5)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(5)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(0), mlisp.VInteger(3)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Ali')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(2), mlisp.VInteger(3)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(2), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'i')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(0), mlisp.VInteger(0)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VInteger(3), mlisp.VInteger(3)])
+        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(3), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
 
@@ -1828,24 +1828,24 @@ class TestOperations(TestCase):
         def prim (args):
             return (args[0], args[1])
         v = mlisp.prim_apply([mlisp.VPrimitive('test', prim, 2, 2),
-                             _make_list([mlisp.VInteger(42), mlisp.VString('Alice')])])
+                             _make_list([mlisp.VNumber(42), mlisp.VString('Alice')])])
         self.assertEqual(v[0].is_number(), True)
         self.assertEqual(v[0].value(), 42)
         self.assertEqual(v[1].is_string(), True)
         self.assertEqual(v[1].value(), 'Alice')
         v = mlisp.prim_apply([mlisp.VFunction(['a', 'b'], mlisp.Symbol('a'), mlisp.Environment()),
-                             _make_list([mlisp.VInteger(42), mlisp.VString('Alice')])])
+                             _make_list([mlisp.VNumber(42), mlisp.VString('Alice')])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
 
     def test_prim_cons(self):
-        v = mlisp.prim_cons([mlisp.VInteger(42), mlisp.VEmpty()])
+        v = mlisp.prim_cons([mlisp.VNumber(42), mlisp.VEmpty()])
         l = _unmake_list(v)
         self.assertEqual(len(l), 1)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 42)
-        v = mlisp.prim_cons([mlisp.VInteger(42), _make_list([mlisp.VString('Alice'), mlisp.VString('Bob')])])
+        v = mlisp.prim_cons([mlisp.VNumber(42), _make_list([mlisp.VString('Alice'), mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].is_number(), True)
@@ -1860,15 +1860,15 @@ class TestOperations(TestCase):
         v = mlisp.prim_append([])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_append([_make_list([mlisp.VInteger(1), mlisp.VInteger(2)])])
+        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 2)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 1)
         self.assertEqual(l[1].is_number(), True)
         self.assertEqual(l[1].value(), 2)
-        v = mlisp.prim_append([_make_list([mlisp.VInteger(1), mlisp.VInteger(2)]),
-                              _make_list([mlisp.VInteger(3), mlisp.VInteger(4)])])
+        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
+                              _make_list([mlisp.VNumber(3), mlisp.VNumber(4)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 4)
         self.assertEqual(l[0].is_number(), True)
@@ -1879,9 +1879,9 @@ class TestOperations(TestCase):
         self.assertEqual(l[2].value(), 3)
         self.assertEqual(l[3].is_number(), True)
         self.assertEqual(l[3].value(), 4)
-        v = mlisp.prim_append([_make_list([mlisp.VInteger(1), mlisp.VInteger(2)]),
-                              _make_list([mlisp.VInteger(3), mlisp.VInteger(4)]),
-                              _make_list([mlisp.VInteger(5), mlisp.VInteger(6)])])
+        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
+                              _make_list([mlisp.VNumber(3), mlisp.VNumber(4)]),
+                              _make_list([mlisp.VNumber(5), mlisp.VNumber(6)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 6)
         self.assertEqual(l[0].is_number(), True)
@@ -1899,10 +1899,10 @@ class TestOperations(TestCase):
 
 
     def test_prim_reverse(self):
-        v = mlisp.prim_reverse([_make_list([mlisp.VInteger(1),
-                                           mlisp.VInteger(2),
-                                           mlisp.VInteger(3),
-                                           mlisp.VInteger(4)])])
+        v = mlisp.prim_reverse([_make_list([mlisp.VNumber(1),
+                                           mlisp.VNumber(2),
+                                           mlisp.VNumber(3),
+                                           mlisp.VNumber(4)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 4)
         self.assertEqual(l[0].is_number(), True)
@@ -1916,10 +1916,10 @@ class TestOperations(TestCase):
 
 
     def test_prim_first(self):
-        v = mlisp.prim_first([_make_list([mlisp.VInteger(42)])])
+        v = mlisp.prim_first([_make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_first([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_first([_make_list([mlisp.VNumber(42),
                                          mlisp.VString('Alice'),
                                          mlisp.VString('Bob')])])
         self.assertEqual(v.is_number(), True)
@@ -1927,10 +1927,10 @@ class TestOperations(TestCase):
 
 
     def test_prim_rest(self):
-        v = mlisp.prim_rest([_make_list([mlisp.VInteger(42)])])
+        v = mlisp.prim_rest([_make_list([mlisp.VNumber(42)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_rest([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_rest([_make_list([mlisp.VNumber(42),
                                         mlisp.VString('Alice'),
                                         mlisp.VString('Bob')])])
         l = _unmake_list(v)
@@ -1945,12 +1945,12 @@ class TestOperations(TestCase):
         v = mlisp.prim_list([])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_list([mlisp.VInteger(42)])
+        v = mlisp.prim_list([mlisp.VNumber(42)])
         l = _unmake_list(v)
         self.assertEqual(len(l), 1)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 42)
-        v = mlisp.prim_list([mlisp.VInteger(42),
+        v = mlisp.prim_list([mlisp.VNumber(42),
                             mlisp.VString('Alice')])
         l = _unmake_list(v)
         self.assertEqual(len(l), 2)
@@ -1958,7 +1958,7 @@ class TestOperations(TestCase):
         self.assertEqual(l[0].value(), 42)
         self.assertEqual(l[1].is_string(), True)
         self.assertEqual(l[1].value(), 'Alice')
-        v = mlisp.prim_list([mlisp.VInteger(42),
+        v = mlisp.prim_list([mlisp.VNumber(42),
                             mlisp.VString('Alice'),
                             mlisp.VString('Bob')])
         l = _unmake_list(v)
@@ -1975,14 +1975,14 @@ class TestOperations(TestCase):
         v = mlisp.prim_length([_make_list([])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 0)
-        v = mlisp.prim_length([_make_list([mlisp.VInteger(42)])])
+        v = mlisp.prim_length([_make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 1)
-        v = mlisp.prim_length([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_length([_make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice')])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 2)
-        v = mlisp.prim_length([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_length([_make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice'),
                                           mlisp.VString('Bob')])])
         self.assertEqual(v.is_number(), True)
@@ -1990,22 +1990,22 @@ class TestOperations(TestCase):
 
 
     def test_prim_nth(self):
-        v = mlisp.prim_nth([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
                                        mlisp.VString('Alice'),
                                        mlisp.VString('Bob')]),
-                           mlisp.VInteger(0)])
+                           mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_nth([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
                                        mlisp.VString('Alice'),
                                        mlisp.VString('Bob')]),
-                           mlisp.VInteger(1)])
+                           mlisp.VNumber(1)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_nth([_make_list([mlisp.VInteger(42),
+        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
                                        mlisp.VString('Alice'),
                                        mlisp.VString('Bob')]),
-                           mlisp.VInteger(2)])
+                           mlisp.VNumber(2)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Bob')
 
@@ -2020,7 +2020,7 @@ class TestOperations(TestCase):
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
         v = mlisp.prim_map([mlisp.VPrimitive('test', prim1, 1),
-                           _make_list([mlisp.VInteger(42),
+                           _make_list([mlisp.VNumber(42),
                                        mlisp.VString('Alice'),
                                        mlisp.VString('Bob')])])
         l = _unmake_list(v)
@@ -2038,14 +2038,14 @@ class TestOperations(TestCase):
         self.assertEqual(len(l), 0)
         v = mlisp.prim_map([mlisp.VPrimitive('test', prim2, 2),
                            _make_list([]),
-                           _make_list([mlisp.VInteger(42)])])
+                           _make_list([mlisp.VNumber(42)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
         v = mlisp.prim_map([mlisp.VPrimitive('test', prim2, 2),
-                           _make_list([mlisp.VInteger(42),
+                           _make_list([mlisp.VNumber(42),
                                        mlisp.VString('Alice'),
                                        mlisp.VString('Bob')]),
-                           _make_list([mlisp.VInteger(84),
+                           _make_list([mlisp.VNumber(84),
                                        mlisp.VString('Charlie'),
                                        mlisp.VString('Darlene')])])
         l = _unmake_list(v)
@@ -2068,13 +2068,13 @@ class TestOperations(TestCase):
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
         v = mlisp.prim_filter([mlisp.VPrimitive('test', prim_none, 1),
-                              _make_list([mlisp.VInteger(42),
+                              _make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice'),
                                           mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
         v = mlisp.prim_filter([mlisp.VPrimitive('test', prim_int, 1),
-                              _make_list([mlisp.VInteger(42),
+                              _make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice'),
                                           mlisp.VString('Bob')])])
         l = _unmake_list(v)
@@ -2118,59 +2118,59 @@ class TestOperations(TestCase):
 
 
     def test_prim_eqp(self):
-        v = mlisp.prim_eqp([mlisp.VInteger(42),
-                           mlisp.VInteger(42)])
+        v = mlisp.prim_eqp([mlisp.VNumber(42),
+                           mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqp([mlisp.VInteger(42),
-                           mlisp.VInteger(0)])
+        v = mlisp.prim_eqp([mlisp.VNumber(42),
+                           mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        lst = _make_list([mlisp.VInteger(42)])
+        lst = _make_list([mlisp.VNumber(42)])
         v = mlisp.prim_eqp([lst, lst])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqp([lst, _make_list([mlisp.VInteger(42)])])
+        v = mlisp.prim_eqp([lst, _make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqp([lst, mlisp.VInteger(42)])
+        v = mlisp.prim_eqp([lst, mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqp([lst, _make_list([mlisp.VInteger(84)])])
+        v = mlisp.prim_eqp([lst, _make_list([mlisp.VNumber(84)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_eqlp(self):
-        v = mlisp.prim_eqlp([mlisp.VInteger(42),
-                           mlisp.VInteger(42)])
+        v = mlisp.prim_eqlp([mlisp.VNumber(42),
+                           mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([mlisp.VInteger(42),
-                           mlisp.VInteger(0)])
+        v = mlisp.prim_eqlp([mlisp.VNumber(42),
+                           mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        lst = _make_list([mlisp.VInteger(42)])
+        lst = _make_list([mlisp.VNumber(42)])
         v = mlisp.prim_eqlp([lst, lst])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VInteger(42)])])
+        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([lst, mlisp.VInteger(42)])
+        v = mlisp.prim_eqlp([lst, mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VInteger(84)])])
+        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VNumber(84)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        ref = mlisp.VReference(mlisp.VInteger(42))
+        ref = mlisp.VReference(mlisp.VNumber(42))
         v = mlisp.prim_eqlp([ref, ref])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([ref, mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_eqlp([ref, mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([ref, mlisp.VReference(mlisp.VInteger(0))])
+        v = mlisp.prim_eqlp([ref, mlisp.VReference(mlisp.VNumber(0))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
@@ -2179,16 +2179,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_emptyp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_emptyp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_emptyp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_emptyp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VInteger(42)])
+        v = mlisp.prim_emptyp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_emptyp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_emptyp([mlisp.VString('Alice')])
@@ -2218,16 +2218,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_consp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_consp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
         v = mlisp.prim_consp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VInteger(42)])
+        v = mlisp.prim_consp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_consp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_consp([mlisp.VString('Alice')])
@@ -2257,16 +2257,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_listp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_listp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_listp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
         v = mlisp.prim_listp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VInteger(42)])
+        v = mlisp.prim_listp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_listp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_listp([mlisp.VString('Alice')])
@@ -2296,16 +2296,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_numberp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_numberp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_numberp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VInteger(42)])
+        v = mlisp.prim_numberp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numberp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_numberp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_numberp([mlisp.VString('Alice')])
@@ -2335,16 +2335,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_booleanp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_booleanp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_booleanp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_booleanp([mlisp.VInteger(42)])
+        v = mlisp.prim_booleanp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_booleanp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_booleanp([mlisp.VString('Alice')])
@@ -2374,16 +2374,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_stringp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_stringp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_stringp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VInteger(42)])
+        v = mlisp.prim_stringp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_stringp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_stringp([mlisp.VString('Alice')])
@@ -2413,16 +2413,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_symbolp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_symbolp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_symbolp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VInteger(42)])
+        v = mlisp.prim_symbolp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_symbolp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_symbolp([mlisp.VString('Alice')])
@@ -2452,16 +2452,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_functionp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_functionp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_functionp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VInteger(42)])
+        v = mlisp.prim_functionp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_functionp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_functionp([mlisp.VString('Alice')])
@@ -2491,16 +2491,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_nilp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_nilp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_nilp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VInteger(42)])
+        v = mlisp.prim_nilp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_nilp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_nilp([mlisp.VString('Alice')])
@@ -2530,16 +2530,16 @@ class TestOperations(TestCase):
         v = mlisp.prim_refp([mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_refp([mlisp.VCons(mlisp.VInteger(42), mlisp.VEmpty())])
+        v = mlisp.prim_refp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         v = mlisp.prim_refp([mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_refp([mlisp.VInteger(42)])
+        v = mlisp.prim_refp([mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_refp([mlisp.VReference(mlisp.VInteger(42))])
+        v = mlisp.prim_refp([mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
         v = mlisp.prim_refp([mlisp.VString('Alice')])
@@ -2566,7 +2566,7 @@ class TestOperations(TestCase):
 
 
     def test_prim_ref(self):
-        val = mlisp.VInteger(42)
+        val = mlisp.VNumber(42)
         v = mlisp.prim_ref([val])
         self.assertEqual(v.is_reference(), True)
         self.assertEqual(v.value(), val)
@@ -2574,14 +2574,14 @@ class TestOperations(TestCase):
         v = mlisp.prim_ref([val])
         self.assertEqual(v.is_reference(), True)
         self.assertEqual(v.value(), val)
-        val = mlisp.VReference(mlisp.VInteger(42))
+        val = mlisp.VReference(mlisp.VNumber(42))
         v = mlisp.prim_ref([val])
         self.assertEqual(v.is_reference(), True)
         self.assertEqual(v.value(), val)
 
 
     def test_prim_ref_get(self):
-        val = mlisp.VReference(mlisp.VInteger(42))
+        val = mlisp.VReference(mlisp.VNumber(42))
         v = mlisp.prim_ref_get([val])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
@@ -2589,7 +2589,7 @@ class TestOperations(TestCase):
         v = mlisp.prim_ref_get([val])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), "Alice")
-        val = mlisp.VReference(mlisp.VReference(mlisp.VInteger(42)))
+        val = mlisp.VReference(mlisp.VReference(mlisp.VNumber(42)))
         v = mlisp.prim_ref_get([val])
         self.assertEqual(v.is_reference(), True)
         self.assertEqual(v.value().is_number(), True)
@@ -2597,18 +2597,18 @@ class TestOperations(TestCase):
 
 
     def test_prim_ref_set(self):
-        val = mlisp.VReference(mlisp.VInteger(0))
-        v = mlisp.prim_ref_set([val, mlisp.VInteger(42)])
+        val = mlisp.VReference(mlisp.VNumber(0))
+        v = mlisp.prim_ref_set([val, mlisp.VNumber(42)])
         self.assertEqual(v.is_nil(), True)
         self.assertEqual(val.value().is_number(), True)
         self.assertEqual(val.value().value(), 42)
-        val = mlisp.VReference(mlisp.VInteger(0))
+        val = mlisp.VReference(mlisp.VNumber(0))
         v = mlisp.prim_ref_set([val, mlisp.VString("Alice")])
         self.assertEqual(v.is_nil(), True)
         self.assertEqual(val.value().is_string(), True)
         self.assertEqual(val.value().value(), "Alice")
-        val = mlisp.VReference(mlisp.VInteger(0))
-        v = mlisp.prim_ref_set([val, mlisp.VReference(mlisp.VInteger(42))])
+        val = mlisp.VReference(mlisp.VNumber(0))
+        v = mlisp.prim_ref_set([val, mlisp.VReference(mlisp.VNumber(42))])
         self.assertEqual(v.is_nil(), True)
         self.assertEqual(val.value().is_reference(), True)
         self.assertEqual(val.value().value().is_number(), True)
@@ -2715,7 +2715,7 @@ class TestEngine(TestCase):
         v = engine.eval('empty')
         self.assertEqual(v.is_empty(), True)
         # init bindings
-        engine = mlisp.Engine(bindings=[('a', mlisp.VInteger(42)), ('b', mlisp.VString('Alice'))])
+        engine = mlisp.Engine(bindings=[('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
         v = engine.eval('a')
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
@@ -2727,15 +2727,15 @@ class TestEngine(TestCase):
     def test_engine_add_env(self):
         # no init bindings
         engine = mlisp.Engine()
-        engine.add_env([('a', mlisp.VInteger(42)), ('b', mlisp.VString('Alice'))])
+        engine.add_env([('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
         v = engine.eval('a')
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         v = engine.eval('empty')
         self.assertEqual(v.is_empty(), True)
         # init bindings
-        engine = mlisp.Engine(bindings=[('x', mlisp.VInteger(42)), ('y', mlisp.VString('Alice'))])
-        engine.add_env([('a', mlisp.VInteger(42)), ('b', mlisp.VString('Alice'))])
+        engine = mlisp.Engine(bindings=[('x', mlisp.VNumber(42)), ('y', mlisp.VString('Alice'))])
+        engine.add_env([('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
         v = engine.eval('a')
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
