@@ -618,7 +618,7 @@ class Quote(Expression):
         return 'Quote({})'.format(repr(self._sexpr))
 
     def eval(self, env):
-        return self._sexpr.as_value()
+        return self._sexpr
 
 
 class Lambda(Expression):
@@ -666,202 +666,12 @@ class Do(Expression):
         return(self._exprs[-1], env)
 
 
-class SExpression:
-    def is_atom(self):
-        return False
-
-    def is_cons(self):
-        return False
-
-    def is_empty(self):
-        return False
-
-    @staticmethod
-    def from_value(v):
-        if v.is_atom():
-            return SAtom(str(v))
-        if v.is_empty():
-            return SEmpty()
-        if v.is_cons():
-            return SCons(SExpression.from_value(v.car()), SExpression.from_value(v.cdr()))
-        raise LispError('Cannot convert {} back to s-expression'.format(repr(v)))
-    
-    
-class SAtom(SExpression):
-    def __init__(self, s):
-        self._content = s
-
-    def is_atom(self):
-        return True
-
-    def content(self):
-        return self._content
-
-    def __repr__(self):
-        return 'SAtom({})'.format(self._content)
-
-    def __str__(self):
-        return str(self._content)
-
-    def _str_cdr(self):
-        return ' . {})'.format(self._content)
-
-    def match_token(self, tok):
-        tok = canonical(tok)
-        s = canonical(self._content)
-        m = re.match('^{}$'.format(tok), s)
-        if m:
-            return m.group()
-        return None
-
-    def as_value(self):
-        content = self._content
-        if content[0] == '"' and content[-1] == '"':
-            return VString(content[1:-1])
-        if self.match_token(r'-?[0-9]+'):
-            return VNumber(int(content))
-        if self.match_token(r'#t'):
-            return VBoolean(True)
-        if self.match_token(r'#f'):
-            return VBoolean(False)
-        return VSymbol(content)
-
-    def to_expression(self): 
-        content = self._content
-        if content[0] == '"' and content[-1] == '"':
-            return String(content[1:-1])
-        if self.match_token(r'-?[0-9]+'):
-            return Integer(int(content))
-        if self.match_token(r'#t'):
-            return Boolean(True)
-        if self.match_token(r'#f'):
-            return Boolean(False)
-        return Symbol(content)
-   
-    
-class SCons(SExpression):
-    def __init__(self, car, cdr):
-        self._car = car
-        self._cdr = cdr
-
-    def is_cons(self):
-        return True
-
-    def content(self):
-        return(self._car, self._cdr)
-
-    def __repr__(self):
-        return 'SCons({}, {})'.format(repr(self._car), repr(self._cdr))
-
-    def __str__(self):
-        return '({}{}'.format(self._car, self._cdr._str_cdr())
-
-    def _str_cdr(self):
-        return ' {}{}'.format(self._car, self._cdr._str_cdr())
-
-    def as_value(self):
-        return VCons(self._car.as_value(), self._cdr.as_value())
-            
-
-class SEmpty(SExpression):
-    def __repr__(self):
-        return 'SEmpty()'
-
-    def is_empty(self):
-        return True
-
-    def content(self):
-        return None
-    
-    def __str__(self):
-        return '()'
-
-    def _str_cdr(self):
-        return ')'
-
-    def as_value(self):
-        return VEmpty()
-
 
 
 # PARSER COMBINATORS
 
 # a parser is a function String -> Option('a, String)
 
-def parse_sexp_wrap(p, f):
-    def parser(s):
-        result = p(s)
-        if not result:
-            return None
-        return(f(result[0]), result[1])
-    return parser
-
-
-def parse_token(token):
-    def parser(s):
-        ss = s.strip()
-        m = re.match(token, ss)
-        if m:
-            return(m.group(), ss[m.end():])
-        return None
-    return parser
-
-
-def parse_success(v):
-    def parser(s):
-        return(v, s)
-    return parser
-
-
-
-# SEXPRESSIONS parser
-    
-def parse_lparen(s):
-    return parse_token(r'\(')(s)
-
-def parse_rparen(s):
-    return parse_token(r'\)')(s)
-
-def parse_dot(s):
-    return parse_token(r'\.')(s)
-
-def parse_atom(s):
-    p = parse_token(r"[^'()#\s]+")
-    return parse_sexp_wrap(p, lambda x: SAtom(x))(s)
-
-def parse_string(s):
-    def clean(s):
-        return s.replace('\\"', '"').replace('\\\\', '\\')
-    # p = parse_token(r'"[^"]*"')
-    p = parse_token(r'"(?:[^"\\]|\\.)*"')
-    return parse_sexp_wrap(p, lambda x: SAtom(x))(s)
-
-def parse_boolean(s):
-    p = parse_token(r'#(?:t|f|T|F)')
-    return parse_sexp_wrap(p, lambda x: SAtom(x))(s)
-
-def parse_sexp(s):
-    p = parse_first([parse_string,
-                     parse_atom,
-                     parse_boolean,
-                     parse_sexp_wrap(parse_seq([parse_token(r"'"),
-                                                parse_sexp]),
-                                lambda x: SCons(SAtom('quote'), SCons(x[1], SEmpty()))),
-                                          ##parse_sexp_string,
-                     parse_sexp_wrap(parse_seq([parse_lparen,
-                                           parse_sexps,
-                                           parse_rparen]),
-                                lambda x: x[1])])
-    return p(s)
-    
-def parse_sexps(s):
-    p = parse_first([parse_sexp_wrap(parse_seq([parse_sexp,
-                                           parse_sexps]),
-                                lambda x: SCons(x[0], x[1])),
-                     parse_success(SEmpty())])
-    return p(s)
-
-    
 
 # perhaps create a ParserComponent class acting as a decorator
 # to have + and | and > as possible combinators?
@@ -906,6 +716,88 @@ def parse_first(ps):
     return parser
 
 
+def parse_sexp_wrap(p, f):
+    def parser(s):
+        result = p(s)
+        if not result:
+            return None
+        return(f(result[0]), result[1])
+    return parser
+
+
+
+class Reader:
+
+    def __init__(self):
+        pass
+
+    # SEXPRESSIONS parser
+
+    def parse_token(self, token):
+        def parser(s):
+            ss = s.strip()
+            m = re.match(token, ss)
+            if m:
+                return(m.group(), ss[m.end():])
+            return None
+        return parser
+
+    def parse_success(self, v):
+        def parser(s):
+            return(v, s)
+        return parser
+
+    def parse_lparen(self, s):
+        return self.parse_token(r'\(')(s)
+
+    def parse_rparen(self, s):
+        return self.parse_token(r'\)')(s)
+
+    def parse_dot(self, s):
+        return self.parse_token(r'\.')(s)
+
+    def parse_number(self, s):
+        p = self.parse_token(r'-?[0-9]+')
+        return parse_sexp_wrap(p, lambda x: VNumber(int(x)))(s)
+    
+    def parse_symbol(self, s):
+        identifier = r'[A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
+        p = self.parse_token(identifier)
+        return parse_sexp_wrap(p, lambda x: VSymbol(x))(s)
+
+    def parse_string(self, s):
+        def clean(s):
+            return s.replace('\\"', '"').replace('\\\\', '\\')
+        # p = parse_token(r'"[^"]*"')
+        p = self.parse_token(r'"(?:[^"\\]|\\.)*"')
+        return parse_sexp_wrap(p, lambda x: VString(x))(s)
+
+    def parse_boolean(self, s):
+        p = self.parse_token(r'#(?:t|f|T|F)')
+        return parse_sexp_wrap(p, lambda x: VBoolean(x.lower(x) == '#t'))(s)
+
+    def parse_sexp(self, s):
+        p = parse_first([self.parse_number,
+                         self.parse_symbol,
+                         self.parse_string,
+                         self.parse_boolean,
+                         parse_sexp_wrap(parse_seq([self.parse_token(r"'"),
+                                                    self.parse_sexp]),
+                                         lambda x: VCons(VSymbol('quote'), VCons(x[1], VEmpty()))),
+                         parse_sexp_wrap(parse_seq([self.parse_lparen,
+                                                    self.parse_sexps,
+                                                    self.parse_rparen]),
+                                         lambda x: x[1])])
+        return p(s)
+
+    def parse_sexps(self, s):
+        p = parse_first([parse_sexp_wrap(parse_seq([self.parse_sexp,
+                                                    self.parse_sexps]),
+                                         lambda x: VCons(x[0], x[1])),
+                         self.parse_success(VEmpty())])
+        return p(s)
+    
+
 class Parser:
     def __init__(self):
         self._macros = {}
@@ -932,7 +824,15 @@ class Parser:
         if not s:
             return None
         if s.is_atom():
-            return s.to_expression()
+            if s.is_number():
+                return Integer(s.value())
+            if s.is_symbol():
+                return Symbol(s.value())
+            if s.is_string():
+                return String(s.value())
+            if s.is_boolean():
+                return Boolean(s.value())
+            raise LispParseError('Cannot parse atom {}'.format(s))
         return None
 
 
@@ -949,7 +849,7 @@ class Parser:
             acc = []
             for p in ps:
                 if current.is_cons():
-                    (car, cdr) = current.content()
+                    (car, cdr) = current.value()
                     e = p(car)
                     if e is None:
                         return None
@@ -976,7 +876,7 @@ class Parser:
             current = s
             acc = []
             while current.is_cons():
-                (car, cdr) = current.content()
+                (car, cdr) = current.value()
                 e = p(car)
                 if e is None:
                     return None
@@ -1001,14 +901,14 @@ class Parser:
             # at least 1
             if not s.is_cons():
                 return None
-            (car, cdr) = s.content()
+            (car, cdr) = s.value()
             e = p(car)
             if e is None:
                 return None
             acc = [e]
             current = cdr
             while current.is_cons():
-                (car, cdr) = current.content()
+                (car, cdr) = current.value()
                 e = p(car)
                 if e is None:
                     return None
@@ -1030,7 +930,7 @@ class Parser:
         def parser(s):
             if not s:
                 return None
-            if s.is_atom() and canonical(s.content()) == canonical(kw):
+            if s.is_symbol() and canonical(s.value()) == canonical(kw):
                 return canonical(kw)
             return None
 
@@ -1039,13 +939,11 @@ class Parser:
 
     def parse_identifier(self, s):
 
-        identifier = r'[A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
-
         if not s:
             return None
-        if s.is_atom():
-            m = s.match_token(identifier)
-            return m
+        if s.is_symbol():
+            # should check it is not a keyword?
+            return s.value()
         return None
 
 
@@ -1640,7 +1538,7 @@ class Engine:
     def read(self, s):
         if not s.strip():
             return None
-        result = parse_sexp(s)
+        result = Reader().parse_sexp(s)
         if result:
             return result[0]
         raise LispReadError('Cannot read {}'.format(s))
