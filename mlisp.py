@@ -146,7 +146,8 @@ class Value:
         return self.kind() in('primitive', 'function')
 
     def is_atom(self):
-        return self.kind() in ['number', 'primitive', 'function', 'symbol', 'string', 'boolean']
+        # only really makes sense for things that are readable
+        return self.kind() in ['number', 'symbol', 'string', 'boolean']
 
     def is_list(self):
         return self.kind() in ['empty-list', 'cons-list']
@@ -363,7 +364,7 @@ class VPrimitive(Value):
             raise LispWrongArgNoError('Too few arguments {} to primitive {}'.format(len(values), self._name))
         if self._max and len(values) > self._max:
             raise LispWrongArgNoError('Too many arguments {} to primitive {}'.format(len(values), self._name))
-        result = self._primitive(values)
+        result = self._primitive(self._name, values)
         return(result or VNil())
     
     
@@ -757,7 +758,6 @@ class Reader:
             # we got a match, so one of the macros must have matched
             # this commits us
             ((name, exps), rest) = result
-            print('matched reader macro =', name)
             return (self._macros[name](self, name, exps), rest)
         return None
     
@@ -1045,33 +1045,33 @@ def primitive(name, min, max=None):
 
 
 @primitive('type', 1, 1)
-def prim_type(args):
+def prim_type(name, args):
     return VSymbol(args[0].kind())
 
 
 @primitive('+', 0)
-def prim_plus(args):
+def prim_plus(name, args):
     v = 0
     for arg in args:
-        check_arg_type('+', arg, lambda v:v.is_number())
+        check_arg_type(name, arg, lambda v:v.is_number())
         v += arg.value()
     return VNumber(v)
 
 @primitive('*', 0)
-def prim_times(args):
+def prim_times(name, args):
     v = 1
     for arg in args:
-        check_arg_type('*', arg, lambda v:v.is_number())
+        check_arg_type(name, arg, lambda v:v.is_number())
         v *= arg.value()
     return VNumber(v)
 
 @primitive('-', 1)
-def prim_minus(args):
-    check_arg_type('-', args[0], lambda v:v.is_number())
+def prim_minus(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_number())
     v = args[0].value()
     if args[1:]:
         for arg in args[1:]:
-            check_arg_type('-', arg, lambda v:v.is_number())
+            check_arg_type(name, arg, lambda v:v.is_number())
             v -= arg.value()
         return VNumber(v)
     else:
@@ -1083,83 +1083,83 @@ def _num_predicate(arg1, arg2, sym, pred):
     return VBoolean(pred(arg1.value(), arg2.value()))
     
 @primitive('=', 2, 2)
-def prim_numequal(args):
-    return _num_predicate(args[0], args[1], '=', lambda v1, v2: v1 == v2)
+def prim_numequal(name, args):
+    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 == v2)
 
 @primitive('<', 2, 2)
-def prim_numless(args):
-    return _num_predicate(args[0], args[1], '<', lambda v1, v2: v1 < v2)
+def prim_numless(name, args):
+    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 < v2)
 
 @primitive('<=', 2, 2)
-def prim_numlesseq(args):
-    return _num_predicate(args[0], args[1], '<=', lambda v1, v2: v1 <= v2)
+def prim_numlesseq(name, args):
+    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 <= v2)
 
 @primitive('>', 2, 2)
-def prim_numgreater(args):
-    return _num_predicate(args[0], args[1], '>', lambda v1, v2: v1 > v2)
+def prim_numgreater(name, args):
+    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 > v2)
 
 @primitive('>=', 2, 2)
-def prim_numgreatereq(args):
-    return _num_predicate(args[0], args[1], '>=', lambda v1, v2: v1 >= v2)
+def prim_numgreatereq(name, args):
+    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 >= v2)
 
 @primitive('not', 1, 1)
-def prim_not(args):
+def prim_not(name, args):
     return VBoolean(not args[0].is_true())
 
 @primitive('string-append', 0)
-def prim_string_append(args):
+def prim_string_append(name, args):
     v = ''
     for arg in args:
-        check_arg_type('string-append', arg, lambda v:v.is_string())
+        check_arg_type(name, arg, lambda v:v.is_string())
         v += arg.value()
     return VString(v)
 
 @primitive('string-length', 1, 1)
-def prim_string_length(args):
-    check_arg_type('string-length', args[0], lambda v:v.is_string())
+def prim_string_length(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_string())
     return VNumber(len(args[0].value()))
 
 @primitive('string-lower', 1, 1)
-def prim_string_lower(args):
-    check_arg_type('string-lower', args[0], lambda v:v.is_string())
+def prim_string_lower(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_string())
     return VString(args[0].value().lower())
 
 @primitive('string-upper', 1, 1)
-def prim_string_upper(args):
-    check_arg_type('string-upper', args[0], lambda v:v.is_string())
+def prim_string_upper(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_string())
     return VString(args[0].value().upper())
 
 @primitive('string-substring', 1, 3)
-def prim_string_substring(args):
-    check_arg_type('string-substring', args[0], lambda v:v.is_string())
+def prim_string_substring(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_string())
     if len(args) > 2:
-        check_arg_type('string-substring', args[2], lambda v:v.is_number())
+        check_arg_type(name, args[2], lambda v:v.is_number())
         end = args[2].value()
     else:
         end = len(args[0].value())
     if len(args) > 1:
-        check_arg_type('string-substring', args[1], lambda v:v.is_number())
+        check_arg_type(name, args[1], lambda v:v.is_number())
         start = args[1].value()
     else:
         start = 0
     return VString(args[0].value()[start:end])
 
 @primitive('apply', 2, 2)
-def prim_apply(args):
-    check_arg_type('apply', args[0], lambda v:v.is_function())
-    check_arg_type('apply', args[1], lambda v:v.is_list())
+def prim_apply(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_function())
+    check_arg_type(name, args[1], lambda v:v.is_list())
     return args[0].apply(args[1].to_list())
     
 @primitive('cons', 2, 2)
-def prim_cons(args):
-    check_arg_type('cons', args[1], lambda v:v.is_list())
+def prim_cons(name, args):
+    check_arg_type(name, args[1], lambda v:v.is_list())
     return VCons(args[0], args[1])
 
 @primitive('append', 0)
-def prim_append(args):
+def prim_append(name, args):
     v = VEmpty()
     for arg in reversed(args):
-        check_arg_type('append', arg, lambda v:v.is_list())
+        check_arg_type(name, arg, lambda v:v.is_list())
         curr = arg
         temp = []
         while not curr.is_empty():
@@ -1170,8 +1170,8 @@ def prim_append(args):
     return v
 
 @primitive('reverse', 1, 1)
-def prim_reverse(args):
-    check_arg_type('reverse', args[0], lambda v:v.is_list())
+def prim_reverse(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_list())
     v = VEmpty()
     curr = args[0]
     while not curr.is_empty():
@@ -1180,25 +1180,25 @@ def prim_reverse(args):
     return v
 
 @primitive('first', 1, 1)
-def prim_first(args):
-    check_arg_type('first', args[0], lambda v:v.is_cons())
+def prim_first(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_cons())
     return args[0].car()
 
 @primitive('rest', 1, 1)
-def prim_rest(args):
-    check_arg_type('rest', args[0], lambda v:v.is_cons())
+def prim_rest(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_cons())
     return args[0].cdr()
 
 @primitive('list', 0)
-def prim_list(args):
+def prim_list(name, args):
     v = VEmpty()
     for arg in reversed(args):
         v = VCons(arg, v)
     return v
 
 @primitive('length', 1, 1)
-def prim_length(args):
-    check_arg_type('length', args[0], lambda v:v.is_list())
+def prim_length(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_list())
     count = 0
     curr = args[0]
     while not curr.is_empty():
@@ -1207,8 +1207,8 @@ def prim_length(args):
     return VNumber(count)
 
 @primitive('nth', 2, 2)
-def prim_nth(args):
-    check_arg_type('nth', args[0], lambda v:v.is_list())
+def prim_nth(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_list())
     check_arg_type('nth', args[1], lambda v:v.is_number())
     idx = args[1].value()
     curr = args[0]
@@ -1221,10 +1221,10 @@ def prim_nth(args):
     raise LispError('Index out of range of list')
 
 @primitive('map', 2)
-def prim_map(args):
-    check_arg_type('map', args[0], lambda v:v.is_function())
+def prim_map(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_function())
     for arg in args[1:]:
-        check_arg_type('map', arg, lambda v:v.is_list())
+        check_arg_type(name, arg, lambda v:v.is_list())
     temp = []
     currs = args[1:]
     while all(curr.is_cons() for curr in currs):
@@ -1237,9 +1237,9 @@ def prim_map(args):
     return v
 
 @primitive('filter', 2, 2)
-def prim_filter(args):
-    check_arg_type('filter', args[0], lambda v:v.is_function())
-    check_arg_type('filter', args[1], lambda v:v.is_list())
+def prim_filter(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_function())
+    check_arg_type(name, args[1], lambda v:v.is_list())
     temp = []
     curr = args[1]
     while not curr.is_empty():
@@ -1252,9 +1252,9 @@ def prim_filter(args):
     return v
 
 @primitive('foldr', 3, 3)
-def prim_foldr(args):
-    check_arg_type('foldr', args[0], lambda v:v.is_function())
-    check_arg_type('foldr', args[1], lambda v:v.is_list())
+def prim_foldr(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_function())
+    check_arg_type(name, args[1], lambda v:v.is_list())
     curr = args[1]
     temp = []
     while not curr.is_empty():
@@ -1266,9 +1266,9 @@ def prim_foldr(args):
     return v
 
 @primitive('foldl', 3, 3)
-def prim_foldl(args):
-    check_arg_type('foldl', args[0], lambda v:v.is_function())
-    check_arg_type('foldl', args[2], lambda v:v.is_list())
+def prim_foldl(name, args):
+    check_arg_type(name, args[0], lambda v:v.is_function())
+    check_arg_type(name, args[2], lambda v:v.is_list())
     curr = args[2]
     v = args[1]
     while not curr.is_empty():
@@ -1277,47 +1277,47 @@ def prim_foldl(args):
     return v
 
 @primitive('eq?', 2, 2)
-def prim_eqp(args):
+def prim_eqp(name, args):
     return VBoolean(args[0].is_eq(args[1]))
 
 @primitive('eql?', 2, 2)
-def prim_eqlp(args):
+def prim_eqlp(name, args):
     return VBoolean(args[0].is_equal(args[1]))
 
 @primitive('empty?', 1, 1)
-def prim_emptyp(args):
+def prim_emptyp(name, args):
     return VBoolean(args[0].is_empty())
     
 @primitive('cons?', 1, 1)
-def prim_consp(args):
+def prim_consp(name, args):
     return VBoolean(args[0].is_cons())
 
 @primitive('list?', 1, 1)
-def prim_listp(args):
+def prim_listp(name, args):
     return VBoolean(args[0].is_list())
 
 @primitive('number?', 1, 1)
-def prim_numberp(args):
+def prim_numberp(name, args):
     return VBoolean(args[0].is_number())
 
 @primitive('boolean?', 1, 1)
-def prim_booleanp(args):
+def prim_booleanp(name, args):
     return VBoolean(args[0].is_boolean())
 
 @primitive('string?', 1, 1)
-def prim_stringp(args):
+def prim_stringp(name, args):
     return VBoolean(args[0].is_string())
 
 @primitive('symbol?', 1, 1)
-def prim_symbolp(args):
+def prim_symbolp(name, args):
     return VBoolean(args[0].is_symbol())
 
 @primitive('function?', 1, 1)
-def prim_functionp(args):
+def prim_functionp(name, args):
     return VBoolean(args[0].is_function())
 
 @primitive('nil?', 1, 1)
-def prim_nilp(args):
+def prim_nilp(name, args):
     return VBoolean(args[0].is_nil())
 
 
@@ -1428,18 +1428,18 @@ class VReference(Value):
         # ??
         return v.kind() == 'reference' and self.value().is_equal(v.value())
 
-def prim_refp(args):
+def prim_refp(name, args):
     return VBoolean(args[0].kind() == 'reference')
 
-def prim_ref(args):
+def prim_ref(name, args):
     return VReference(args[0])
 
-def prim_ref_get(args):
-    check_arg_type('ref-get', args[0], lambda v: v.kind() == 'reference')
+def prim_ref_get(name, args):
+    check_arg_type(name, args[0], lambda v: v.kind() == 'reference')
     return args[0].value()
 
-def prim_ref_set(args):
-    check_arg_type('ref-set!', args[0], lambda v: v.kind() == 'reference')
+def prim_ref_set(name, args):
+    check_arg_type(name, args[0], lambda v: v.kind() == 'reference')
     args[0].set_value(args[1])
     return VNil()
 
@@ -1494,7 +1494,7 @@ class Engine:
     def register_reader(self, name, macro):
         self._reader.register_macro(name, macro)
 
-    def prim_print(self, args):
+    def prim_print(self, name, args):
         result = ' '.join([arg.display() for arg in args])
         self.emit(result)
 

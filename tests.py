@@ -385,7 +385,7 @@ class TestValueCons(TestCase):
 class TestValuePrimitive(TestCase):
     
     def test_primitive(self):
-        def prim (args):
+        def prim(name, args):
             return (args[0], args[1])
         i = mlisp.VNumber(42)
         j = mlisp.VNumber(0)
@@ -401,7 +401,7 @@ class TestValuePrimitive(TestCase):
         self.assertEqual(b.is_empty(), False)
         self.assertEqual(b.is_cons(), False)
         self.assertEqual(b.is_function(), True)
-        self.assertEqual(b.is_atom(), True)
+        self.assertEqual(b.is_atom(), False)
         self.assertEqual(b.is_list(), False)
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VPrimitive('test', prim, 2)), False)
@@ -470,7 +470,7 @@ class TestValueFunction(TestCase):
         self.assertEqual(b.is_empty(), False)
         self.assertEqual(b.is_cons(), False)
         self.assertEqual(b.is_function(), True)
-        self.assertEqual(b.is_atom(), True)
+        self.assertEqual(b.is_atom(), False)
         self.assertEqual(b.is_list(), False)
         self.assertEqual(b.is_true(), True)
         self.assertEqual(b.is_equal(mlisp.VFunction([], mlisp.Integer(42), mlisp.Environment())), False)
@@ -1152,287 +1152,287 @@ class TestDeclarationParsing(TestCase):
 class TestOperations(TestCase):
     
     def test_prim_type(self):
-        v = mlisp.prim_type([mlisp.VBoolean(True)])
+        v = mlisp.prim_type('type', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'boolean')
-        v = mlisp.prim_type([mlisp.VString('Alice')])
+        v = mlisp.prim_type('type', [mlisp.VString('Alice')])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'string')
-        v = mlisp.prim_type([mlisp.VNumber(42)])
+        v = mlisp.prim_type('type', [mlisp.VNumber(42)])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'number')
-        v = mlisp.prim_type([mlisp.VNil()])
+        v = mlisp.prim_type('type', [mlisp.VNil()])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'nil')
-        v = mlisp.prim_type([mlisp.VEmpty()])
+        v = mlisp.prim_type('type', [mlisp.VEmpty()])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'empty-list')
-        v = mlisp.prim_type([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_type('type', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'cons-list')
-        def prim (args):
+        def prim(name, args):
             return (args[0], args[1])
-        v = mlisp.prim_type([mlisp.VPrimitive('prim', prim, 2)])
+        v = mlisp.prim_type('type', [mlisp.VPrimitive('prim', prim, 2)])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'primitive')
-        v = mlisp.prim_type([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_type('type', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'symbol')
-        v = mlisp.prim_type([mlisp.VFunction(['a', 'b'], mlisp.Symbol('a'), mlisp.Environment())])
+        v = mlisp.prim_type('type', [mlisp.VFunction(['a', 'b'], mlisp.Symbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_symbol(), True)
         self.assertEqual(v.value(), 'function')
 
 
     def test_prim_plus(self):
-        v = mlisp.prim_plus([])
+        v = mlisp.prim_plus('+', [])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 0)
-        v = mlisp.prim_plus([mlisp.VNumber(42)])
+        v = mlisp.prim_plus('+', [mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_plus([mlisp.VNumber(42), mlisp.VNumber(84)])
+        v = mlisp.prim_plus('+', [mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 + 84)
-        v = mlisp.prim_plus([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
+        v = mlisp.prim_plus('+', [mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 + 84 + 168)
 
 
     def test_prim_times(self):
-        v = mlisp.prim_times([])
+        v = mlisp.prim_times('*', [])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 1)
-        v = mlisp.prim_times([mlisp.VNumber(42)])
+        v = mlisp.prim_times('*', [mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_times([mlisp.VNumber(42), mlisp.VNumber(84)])
+        v = mlisp.prim_times('*', [mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 * 84)
-        v = mlisp.prim_times([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
+        v = mlisp.prim_times('*', [mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 * 84 * 168)
 
 
     def test_prim_minus(self):
-        v = mlisp.prim_minus([mlisp.VNumber(42)])
+        v = mlisp.prim_minus('-', [mlisp.VNumber(42)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), -42)
-        v = mlisp.prim_minus([mlisp.VNumber(42), mlisp.VNumber(84)])
+        v = mlisp.prim_minus('-', [mlisp.VNumber(42), mlisp.VNumber(84)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 - 84)
-        v = mlisp.prim_minus([mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
+        v = mlisp.prim_minus('-', [mlisp.VNumber(42), mlisp.VNumber(84), mlisp.VNumber(168)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42 - 84 - 168)
 
 
     def test_prim_numequal(self):
-        v = mlisp.prim_numequal([mlisp.VNumber(0), mlisp.VNumber(42)])
+        v = mlisp.prim_numequal('=', [mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numequal([mlisp.VNumber(42), mlisp.VNumber(0)])
+        v = mlisp.prim_numequal('=', [mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numequal([mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_numequal('=', [mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numequal([mlisp.VNumber(42), mlisp.VNumber(42)])
+        v = mlisp.prim_numequal('=', [mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_numless(self):
-        v = mlisp.prim_numless([mlisp.VNumber(0), mlisp.VNumber(42)])
+        v = mlisp.prim_numless('<', [mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numless([mlisp.VNumber(42), mlisp.VNumber(0)])
+        v = mlisp.prim_numless('<', [mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numless([mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_numless('<', [mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numless([mlisp.VNumber(42), mlisp.VNumber(42)])
+        v = mlisp.prim_numless('<', [mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_numlesseq(self):
-        v = mlisp.prim_numlesseq([mlisp.VNumber(0), mlisp.VNumber(42)])
+        v = mlisp.prim_numlesseq('<=', [mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numlesseq([mlisp.VNumber(42), mlisp.VNumber(0)])
+        v = mlisp.prim_numlesseq('<=', [mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numlesseq([mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_numlesseq('<=', [mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numlesseq([mlisp.VNumber(42), mlisp.VNumber(42)])
+        v = mlisp.prim_numlesseq('<=', [mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_numgreater(self):
-        v = mlisp.prim_numgreater([mlisp.VNumber(0), mlisp.VNumber(42)])
+        v = mlisp.prim_numgreater('>', [mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreater([mlisp.VNumber(42), mlisp.VNumber(0)])
+        v = mlisp.prim_numgreater('>', [mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreater([mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_numgreater('>', [mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreater([mlisp.VNumber(42), mlisp.VNumber(42)])
+        v = mlisp.prim_numgreater('>', [mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_numgreatereq(self):
-        v = mlisp.prim_numgreatereq([mlisp.VNumber(0), mlisp.VNumber(42)])
+        v = mlisp.prim_numgreatereq('>=', [mlisp.VNumber(0), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numgreatereq([mlisp.VNumber(42), mlisp.VNumber(0)])
+        v = mlisp.prim_numgreatereq('>=', [mlisp.VNumber(42), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreatereq([mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_numgreatereq('>=', [mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numgreatereq([mlisp.VNumber(42), mlisp.VNumber(42)])
+        v = mlisp.prim_numgreatereq('>=', [mlisp.VNumber(42), mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_not(self):
-        v = mlisp.prim_not([mlisp.VBoolean(True)])
+        v = mlisp.prim_not('not', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_not([mlisp.VBoolean(False)])
+        v = mlisp.prim_not('not', [mlisp.VBoolean(False)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VNumber(0)])
+        v = mlisp.prim_not('not', [mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VNumber(42)])
+        v = mlisp.prim_not('not', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_not([mlisp.VString('')])
+        v = mlisp.prim_not('not', [mlisp.VString('')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VString('Alice')])
+        v = mlisp.prim_not('not', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_not([mlisp.VEmpty()])
+        v = mlisp.prim_not('not', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_not([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_not('not', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_string_append(self):
-        v = mlisp.prim_string_append([])
+        v = mlisp.prim_string_append('string-append', [])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_append([mlisp.VString('Alice')])
+        v = mlisp.prim_string_append('string-append', [mlisp.VString('Alice')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_append([mlisp.VString('Alice'), mlisp.VString('Bob')])
+        v = mlisp.prim_string_append('string-append', [mlisp.VString('Alice'), mlisp.VString('Bob')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'AliceBob')
-        v = mlisp.prim_string_append([mlisp.VString('Alice'), mlisp.VString('Bob'), mlisp.VString('Charlie')])
+        v = mlisp.prim_string_append('string-append', [mlisp.VString('Alice'), mlisp.VString('Bob'), mlisp.VString('Charlie')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'AliceBobCharlie')
 
 
     def test_prim_string_length(self):
-        v = mlisp.prim_string_length([mlisp.VString('')])
+        v = mlisp.prim_string_length('string-length', [mlisp.VString('')])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 0)
-        v = mlisp.prim_string_length([mlisp.VString('Alice')])
+        v = mlisp.prim_string_length('string-length', [mlisp.VString('Alice')])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 5)
-        v = mlisp.prim_string_length([mlisp.VString('Alice Bob')])
+        v = mlisp.prim_string_length('string-length', [mlisp.VString('Alice Bob')])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 9)
 
 
     def test_prim_string_lower(self):
-        v = mlisp.prim_string_lower([mlisp.VString('')])
+        v = mlisp.prim_string_lower('string-lower', [mlisp.VString('')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_lower([mlisp.VString('Alice')])
+        v = mlisp.prim_string_lower('string-lower', [mlisp.VString('Alice')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'alice')
-        v = mlisp.prim_string_lower([mlisp.VString('Alice Bob')])
+        v = mlisp.prim_string_lower('string-lower', [mlisp.VString('Alice Bob')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'alice bob')
 
 
     def test_prim_string_upper(self):
-        v = mlisp.prim_string_upper([mlisp.VString('')])
+        v = mlisp.prim_string_upper('string-upper', [mlisp.VString('')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_upper([mlisp.VString('Alice')])
+        v = mlisp.prim_string_upper('string-upper', [mlisp.VString('Alice')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'ALICE')
-        v = mlisp.prim_string_upper([mlisp.VString('Alice Bob')])
+        v = mlisp.prim_string_upper('string-upper', [mlisp.VString('Alice Bob')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'ALICE BOB')
 
 
     def test_prim_string_substring(self):
-        v = mlisp.prim_string_substring([mlisp.VString('')])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice')])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(0)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(1)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(1)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'lice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(2)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(2)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'ice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(5)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(5)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(3)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Ali')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(2), mlisp.VNumber(3)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(2), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'i')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(0)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(0), mlisp.VNumber(0)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
-        v = mlisp.prim_string_substring([mlisp.VString('Alice'), mlisp.VNumber(3), mlisp.VNumber(3)])
+        v = mlisp.prim_string_substring('string-substring', [mlisp.VString('Alice'), mlisp.VNumber(3), mlisp.VNumber(3)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '')
 
 
     def test_prim_apply(self):
-        def prim (args):
+        def prim(name, args):
             return (args[0], args[1])
-        v = mlisp.prim_apply([mlisp.VPrimitive('test', prim, 2, 2),
+        v = mlisp.prim_apply('apply', [mlisp.VPrimitive('test', prim, 2, 2),
                              _make_list([mlisp.VNumber(42), mlisp.VString('Alice')])])
         self.assertEqual(v[0].is_number(), True)
         self.assertEqual(v[0].value(), 42)
         self.assertEqual(v[1].is_string(), True)
         self.assertEqual(v[1].value(), 'Alice')
-        v = mlisp.prim_apply([mlisp.VFunction(['a', 'b'], mlisp.Symbol('a'), mlisp.Environment()),
+        v = mlisp.prim_apply('apply', [mlisp.VFunction(['a', 'b'], mlisp.Symbol('a'), mlisp.Environment()),
                              _make_list([mlisp.VNumber(42), mlisp.VString('Alice')])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
 
     def test_prim_cons(self):
-        v = mlisp.prim_cons([mlisp.VNumber(42), mlisp.VEmpty()])
+        v = mlisp.prim_cons('cons', [mlisp.VNumber(42), mlisp.VEmpty()])
         l = _unmake_list(v)
         self.assertEqual(len(l), 1)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 42)
-        v = mlisp.prim_cons([mlisp.VNumber(42), _make_list([mlisp.VString('Alice'), mlisp.VString('Bob')])])
+        v = mlisp.prim_cons('cons', [mlisp.VNumber(42), _make_list([mlisp.VString('Alice'), mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].is_number(), True)
@@ -1444,17 +1444,17 @@ class TestOperations(TestCase):
 
 
     def test_prim_append(self):
-        v = mlisp.prim_append([])
+        v = mlisp.prim_append('append', [])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)])])
+        v = mlisp.prim_append('append', [_make_list([mlisp.VNumber(1), mlisp.VNumber(2)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 2)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 1)
         self.assertEqual(l[1].is_number(), True)
         self.assertEqual(l[1].value(), 2)
-        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
+        v = mlisp.prim_append('append', [_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
                               _make_list([mlisp.VNumber(3), mlisp.VNumber(4)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 4)
@@ -1466,7 +1466,7 @@ class TestOperations(TestCase):
         self.assertEqual(l[2].value(), 3)
         self.assertEqual(l[3].is_number(), True)
         self.assertEqual(l[3].value(), 4)
-        v = mlisp.prim_append([_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
+        v = mlisp.prim_append('append', [_make_list([mlisp.VNumber(1), mlisp.VNumber(2)]),
                               _make_list([mlisp.VNumber(3), mlisp.VNumber(4)]),
                               _make_list([mlisp.VNumber(5), mlisp.VNumber(6)])])
         l = _unmake_list(v)
@@ -1486,7 +1486,7 @@ class TestOperations(TestCase):
 
 
     def test_prim_reverse(self):
-        v = mlisp.prim_reverse([_make_list([mlisp.VNumber(1),
+        v = mlisp.prim_reverse('reverse', [_make_list([mlisp.VNumber(1),
                                            mlisp.VNumber(2),
                                            mlisp.VNumber(3),
                                            mlisp.VNumber(4)])])
@@ -1503,10 +1503,10 @@ class TestOperations(TestCase):
 
 
     def test_prim_first(self):
-        v = mlisp.prim_first([_make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_first('first', [_make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_first([_make_list([mlisp.VNumber(42),
+        v = mlisp.prim_first('first', [_make_list([mlisp.VNumber(42),
                                          mlisp.VString('Alice'),
                                          mlisp.VString('Bob')])])
         self.assertEqual(v.is_number(), True)
@@ -1514,10 +1514,10 @@ class TestOperations(TestCase):
 
 
     def test_prim_rest(self):
-        v = mlisp.prim_rest([_make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_rest('rest', [_make_list([mlisp.VNumber(42)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_rest([_make_list([mlisp.VNumber(42),
+        v = mlisp.prim_rest('rest', [_make_list([mlisp.VNumber(42),
                                         mlisp.VString('Alice'),
                                         mlisp.VString('Bob')])])
         l = _unmake_list(v)
@@ -1529,25 +1529,25 @@ class TestOperations(TestCase):
 
 
     def test_prim_list(self):
-        v = mlisp.prim_list([])
+        v = mlisp.prim_list('list', [])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_list([mlisp.VNumber(42)])
+        v = mlisp.prim_list('list', [mlisp.VNumber(42)])
         l = _unmake_list(v)
         self.assertEqual(len(l), 1)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 42)
-        v = mlisp.prim_list([mlisp.VNumber(42),
-                            mlisp.VString('Alice')])
+        v = mlisp.prim_list('list', [mlisp.VNumber(42),
+                                     mlisp.VString('Alice')])
         l = _unmake_list(v)
         self.assertEqual(len(l), 2)
         self.assertEqual(l[0].is_number(), True)
         self.assertEqual(l[0].value(), 42)
         self.assertEqual(l[1].is_string(), True)
         self.assertEqual(l[1].value(), 'Alice')
-        v = mlisp.prim_list([mlisp.VNumber(42),
-                            mlisp.VString('Alice'),
-                            mlisp.VString('Bob')])
+        v = mlisp.prim_list('list', [mlisp.VNumber(42),
+                                     mlisp.VString('Alice'),
+                                     mlisp.VString('Bob')])
         l = _unmake_list(v)
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].is_number(), True)
@@ -1559,17 +1559,17 @@ class TestOperations(TestCase):
 
 
     def test_prim_length(self):
-        v = mlisp.prim_length([_make_list([])])
+        v = mlisp.prim_length('length', [_make_list([])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 0)
-        v = mlisp.prim_length([_make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_length('length', [_make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 1)
-        v = mlisp.prim_length([_make_list([mlisp.VNumber(42),
+        v = mlisp.prim_length('length', [_make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice')])])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 2)
-        v = mlisp.prim_length([_make_list([mlisp.VNumber(42),
+        v = mlisp.prim_length('length', [_make_list([mlisp.VNumber(42),
                                           mlisp.VString('Alice'),
                                           mlisp.VString('Bob')])])
         self.assertEqual(v.is_number(), True)
@@ -1577,39 +1577,39 @@ class TestOperations(TestCase):
 
 
     def test_prim_nth(self):
-        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
-                                       mlisp.VString('Alice'),
-                                       mlisp.VString('Bob')]),
-                           mlisp.VNumber(0)])
+        v = mlisp.prim_nth('nth', [_make_list([mlisp.VNumber(42),
+                                               mlisp.VString('Alice'),
+                                               mlisp.VString('Bob')]),
+                                   mlisp.VNumber(0)])
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
-                                       mlisp.VString('Alice'),
-                                       mlisp.VString('Bob')]),
-                           mlisp.VNumber(1)])
+        v = mlisp.prim_nth('nth', [_make_list([mlisp.VNumber(42),
+                                               mlisp.VString('Alice'),
+                                               mlisp.VString('Bob')]),
+                                   mlisp.VNumber(1)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-        v = mlisp.prim_nth([_make_list([mlisp.VNumber(42),
-                                       mlisp.VString('Alice'),
-                                       mlisp.VString('Bob')]),
-                           mlisp.VNumber(2)])
+        v = mlisp.prim_nth('nth', [_make_list([mlisp.VNumber(42),
+                                               mlisp.VString('Alice'),
+                                               mlisp.VString('Bob')]),
+                                   mlisp.VNumber(2)])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Bob')
 
 
     def test_prim_map(self):
-        def prim1 (args):
+        def prim1(name, args):
             return args[0]
-        def prim2 (args):
+        def prim2(name, args):
             return args[1]
-        v = mlisp.prim_map([mlisp.VPrimitive('test', prim1, 1),
-                           _make_list([])])
+        v = mlisp.prim_map('map', [mlisp.VPrimitive('test', prim1, 1),
+                                   _make_list([])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_map([mlisp.VPrimitive('test', prim1, 1),
-                           _make_list([mlisp.VNumber(42),
-                                       mlisp.VString('Alice'),
-                                       mlisp.VString('Bob')])])
+        v = mlisp.prim_map('map', [mlisp.VPrimitive('test', prim1, 1),
+                                   _make_list([mlisp.VNumber(42),
+                                               mlisp.VString('Alice'),
+                                               mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].is_number(), True)
@@ -1618,23 +1618,23 @@ class TestOperations(TestCase):
         self.assertEqual(l[1].value(), 'Alice')
         self.assertEqual(l[2].is_string(), True)
         self.assertEqual(l[2].value(), 'Bob')
-        v = mlisp.prim_map([mlisp.VPrimitive('test', prim2, 2),
-                           _make_list([]),
-                           _make_list([])])
+        v = mlisp.prim_map('map', [mlisp.VPrimitive('test', prim2, 2),
+                                   _make_list([]),
+                                   _make_list([])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_map([mlisp.VPrimitive('test', prim2, 2),
-                           _make_list([]),
-                           _make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_map('map', [mlisp.VPrimitive('test', prim2, 2),
+                                   _make_list([]),
+                                   _make_list([mlisp.VNumber(42)])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_map([mlisp.VPrimitive('test', prim2, 2),
-                           _make_list([mlisp.VNumber(42),
-                                       mlisp.VString('Alice'),
-                                       mlisp.VString('Bob')]),
-                           _make_list([mlisp.VNumber(84),
-                                       mlisp.VString('Charlie'),
-                                       mlisp.VString('Darlene')])])
+        v = mlisp.prim_map('map', [mlisp.VPrimitive('test', prim2, 2),
+                                   _make_list([mlisp.VNumber(42),
+                                               mlisp.VString('Alice'),
+                                               mlisp.VString('Bob')]),
+                                   _make_list([mlisp.VNumber(84),
+                                               mlisp.VString('Charlie'),
+                                               mlisp.VString('Darlene')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].is_number(), True)
@@ -1646,24 +1646,24 @@ class TestOperations(TestCase):
 
 
     def test_prim_filter(self):
-        def prim_none (args):
+        def prim_none(name, args):
             return mlisp.VBoolean(False)
-        def prim_int (args):
+        def prim_int(name, args):
             return mlisp.VBoolean(args[0].is_number())
-        v = mlisp.prim_filter([mlisp.VPrimitive('test', prim_none, 1),
-                              _make_list([])])
+        v = mlisp.prim_filter('filter', [mlisp.VPrimitive('test', prim_none, 1),
+                                         _make_list([])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_filter([mlisp.VPrimitive('test', prim_none, 1),
-                              _make_list([mlisp.VNumber(42),
-                                          mlisp.VString('Alice'),
-                                          mlisp.VString('Bob')])])
+        v = mlisp.prim_filter('filter', [mlisp.VPrimitive('test', prim_none, 1),
+                                         _make_list([mlisp.VNumber(42),
+                                                     mlisp.VString('Alice'),
+                                                     mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 0)
-        v = mlisp.prim_filter([mlisp.VPrimitive('test', prim_int, 1),
-                              _make_list([mlisp.VNumber(42),
-                                          mlisp.VString('Alice'),
-                                          mlisp.VString('Bob')])])
+        v = mlisp.prim_filter('filter', [mlisp.VPrimitive('test', prim_int, 1),
+                                         _make_list([mlisp.VNumber(42),
+                                                     mlisp.VString('Alice'),
+                                                     mlisp.VString('Bob')])])
         l = _unmake_list(v)
         self.assertEqual(len(l), 1)
         self.assertEqual(l[0].is_number(), True)
@@ -1671,407 +1671,407 @@ class TestOperations(TestCase):
 
 
     def test_prim_foldr(self):
-        def prim (args):
+        def prim(name, args):
             return mlisp.VString(args[0].value() + '(' + args[1].value() + ')')
-        v = mlisp.prim_foldr([mlisp.VPrimitive('test', prim, 2),
-                             _make_list([]),
-                             mlisp.VString('base')])
+        v = mlisp.prim_foldr('foldr', [mlisp.VPrimitive('test', prim, 2),
+                                       _make_list([]),
+                                       mlisp.VString('base')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'base')
-        v = mlisp.prim_foldr([mlisp.VPrimitive('test', prim, 2),
-                             _make_list([mlisp.VString('Alice'),
-                                         mlisp.VString('Bob'),
-                                         mlisp.VString('Charlie')]),
-                             mlisp.VString('base')])
+        v = mlisp.prim_foldr('foldr', [mlisp.VPrimitive('test', prim, 2),
+                                       _make_list([mlisp.VString('Alice'),
+                                                   mlisp.VString('Bob'),
+                                                   mlisp.VString('Charlie')]),
+                                       mlisp.VString('base')])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice(Bob(Charlie(base)))')
 
 
     def test_prim_foldl(self):
-        def prim (args):
+        def prim(name, args):
             return mlisp.VString('(' + args[0].value() + ')' + args[1].value())
-        v = mlisp.prim_foldl([mlisp.VPrimitive('test', prim, 2),
-                             mlisp.VString('base'),
-                             _make_list([])])
+        v = mlisp.prim_foldl('foldl', [mlisp.VPrimitive('test', prim, 2),
+                                       mlisp.VString('base'),
+                                       _make_list([])])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'base')
-        v = mlisp.prim_foldl([mlisp.VPrimitive('test', prim, 2),
-                             mlisp.VString('base'),
-                             _make_list([mlisp.VString('Alice'),
-                                         mlisp.VString('Bob'),
-                                         mlisp.VString('Charlie')])])
+        v = mlisp.prim_foldl('foldl', [mlisp.VPrimitive('test', prim, 2),
+                                       mlisp.VString('base'),
+                                       _make_list([mlisp.VString('Alice'),
+                                                   mlisp.VString('Bob'),
+                                                   mlisp.VString('Charlie')])])
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), '(((base)Alice)Bob)Charlie')
 
 
     def test_prim_eqp(self):
-        v = mlisp.prim_eqp([mlisp.VNumber(42),
-                           mlisp.VNumber(42)])
+        v = mlisp.prim_eqp('eq?', [mlisp.VNumber(42),
+                                   mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqp([mlisp.VNumber(42),
-                           mlisp.VNumber(0)])
+        v = mlisp.prim_eqp('eq?', [mlisp.VNumber(42),
+                                   mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         lst = _make_list([mlisp.VNumber(42)])
-        v = mlisp.prim_eqp([lst, lst])
+        v = mlisp.prim_eqp('eq?', [lst, lst])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqp([lst, _make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_eqp('eq?', [lst, _make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqp([lst, mlisp.VNumber(42)])
+        v = mlisp.prim_eqp('eq?', [lst, mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqp([lst, _make_list([mlisp.VNumber(84)])])
+        v = mlisp.prim_eqp('eq?', [lst, _make_list([mlisp.VNumber(84)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_eqlp(self):
-        v = mlisp.prim_eqlp([mlisp.VNumber(42),
+        v = mlisp.prim_eqlp('eql?', [mlisp.VNumber(42),
                            mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([mlisp.VNumber(42),
+        v = mlisp.prim_eqlp('eql?', [mlisp.VNumber(42),
                            mlisp.VNumber(0)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
         lst = _make_list([mlisp.VNumber(42)])
-        v = mlisp.prim_eqlp([lst, lst])
+        v = mlisp.prim_eqlp('eql?', [lst, lst])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VNumber(42)])])
+        v = mlisp.prim_eqlp('eql?', [lst, _make_list([mlisp.VNumber(42)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_eqlp([lst, mlisp.VNumber(42)])
+        v = mlisp.prim_eqlp('eql?', [lst, mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_eqlp([lst, _make_list([mlisp.VNumber(84)])])
+        v = mlisp.prim_eqlp('eql?', [lst, _make_list([mlisp.VNumber(84)])])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_emptyp(self):
-        v = mlisp.prim_emptyp([mlisp.VEmpty()])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_emptyp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VBoolean(True)])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VNumber(42)])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VString('Alice')])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VNil()])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_emptyp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_emptyp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_emptyp('empty?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_consp(self):
-        v = mlisp.prim_consp([mlisp.VEmpty()])
+        v = mlisp.prim_consp('cons?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_consp('cons?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_consp([mlisp.VBoolean(True)])
+        v = mlisp.prim_consp('cons?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VNumber(42)])
+        v = mlisp.prim_consp('cons?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VString('Alice')])
+        v = mlisp.prim_consp('cons?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_consp('cons?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_consp('cons?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_consp('cons?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VNil()])
+        v = mlisp.prim_consp('cons?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_consp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_consp('cons?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_consp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_consp('cons?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_listp(self):
-        v = mlisp.prim_listp([mlisp.VEmpty()])
+        v = mlisp.prim_listp('list?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_listp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_listp('list?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_listp([mlisp.VBoolean(True)])
+        v = mlisp.prim_listp('list?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VNumber(42)])
+        v = mlisp.prim_listp('list?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VString('Alice')])
+        v = mlisp.prim_listp('list?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_listp('list?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_listp('list?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_listp('list?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VNil()])
+        v = mlisp.prim_listp('list?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_listp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_listp('list?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_listp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_listp('list?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_numberp(self):
-        v = mlisp.prim_numberp([mlisp.VEmpty()])
+        v = mlisp.prim_numberp('number?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_numberp('number?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VBoolean(True)])
+        v = mlisp.prim_numberp('number?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VNumber(42)])
+        v = mlisp.prim_numberp('number?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_numberp([mlisp.VString('Alice')])
+        v = mlisp.prim_numberp('number?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_numberp('number?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_numberp('number?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_numberp('number?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VNil()])
+        v = mlisp.prim_numberp('number?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_numberp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_numberp('number?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_numberp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_numberp('number?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_booleanp(self):
-        v = mlisp.prim_booleanp([mlisp.VEmpty()])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VBoolean(True)])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_booleanp([mlisp.VNumber(42)])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VString('Alice')])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VNil()])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_booleanp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_booleanp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_booleanp('boolean?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_stringp(self):
-        v = mlisp.prim_stringp([mlisp.VEmpty()])
+        v = mlisp.prim_stringp('string?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_stringp('string?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VBoolean(True)])
+        v = mlisp.prim_stringp('string?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VNumber(42)])
+        v = mlisp.prim_stringp('string?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VString('Alice')])
+        v = mlisp.prim_stringp('string?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_stringp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_stringp('string?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_stringp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_stringp('string?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_stringp('string?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VNil()])
+        v = mlisp.prim_stringp('string?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_stringp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_stringp('string?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_stringp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_stringp('string?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_symbolp(self):
-        v = mlisp.prim_symbolp([mlisp.VEmpty()])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VBoolean(True)])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VNumber(42)])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VString('Alice')])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_symbolp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_symbolp([mlisp.VNil()])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_symbolp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_symbolp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_symbolp('symbol?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
 
     def test_prim_functionp(self):
-        v = mlisp.prim_functionp([mlisp.VEmpty()])
+        v = mlisp.prim_functionp('function?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_functionp('function?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VBoolean(True)])
+        v = mlisp.prim_functionp('function?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VNumber(42)])
+        v = mlisp.prim_functionp('function?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VString('Alice')])
+        v = mlisp.prim_functionp('function?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_functionp('function?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_functionp('function?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_functionp('function?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_functionp([mlisp.VNil()])
+        v = mlisp.prim_functionp('function?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False )
-        v = mlisp.prim_functionp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_functionp('function?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
-        v = mlisp.prim_functionp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_functionp('function?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True)
 
 
     def test_prim_nilp(self):
-        v = mlisp.prim_nilp([mlisp.VEmpty()])
+        v = mlisp.prim_nilp('nil?', [mlisp.VEmpty()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
+        v = mlisp.prim_nilp('nil?', [mlisp.VCons(mlisp.VNumber(42), mlisp.VEmpty())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VBoolean(True)])
+        v = mlisp.prim_nilp('nil?', [mlisp.VBoolean(True)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VNumber(42)])
+        v = mlisp.prim_nilp('nil?', [mlisp.VNumber(42)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VString('Alice')])
+        v = mlisp.prim_nilp('nil?', [mlisp.VString('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VString('Test\u00e9')])
+        v = mlisp.prim_nilp('nil?', [mlisp.VString('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VSymbol('Alice')])
+        v = mlisp.prim_nilp('nil?', [mlisp.VSymbol('Alice')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VSymbol('Test\u00e9')])
+        v = mlisp.prim_nilp('nil?', [mlisp.VSymbol('Test\u00e9')])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VNil()])
+        v = mlisp.prim_nilp('nil?', [mlisp.VNil()])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), True )
-        v = mlisp.prim_nilp([mlisp.VPrimitive('test', lambda args: args[0], 1)])
+        v = mlisp.prim_nilp('nil?', [mlisp.VPrimitive('test', lambda args: args[0], 1)])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
-        v = mlisp.prim_nilp([mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
+        v = mlisp.prim_nilp('nil?', [mlisp.VFunction(['a'], mlisp.VSymbol('a'), mlisp.Environment())])
         self.assertEqual(v.is_boolean(), True)
         self.assertEqual(v.value(), False)
 
