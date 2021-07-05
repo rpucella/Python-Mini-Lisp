@@ -2,9 +2,9 @@
 
 This repo is a simple one-file LISP interpreter ready for embedding in a Python program to provide an internal command language.
 
-It has no external dependencies outside the Python 3.9 standard library.
+It has no external dependencies outside the Python 3.8 standard library.
 
-(It probably works on earlier versions than 3.9, but I haven't tested it.)
+(It should work on earlier versions than 3.8, but I haven't tested it.)
 
 **TODO**: Add license information
 

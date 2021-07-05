@@ -156,12 +156,7 @@ class Value:
         return True
 
     def is_equal(self, v):
-        # by default, do is_eq
-        return self.is_eq(v)
-
-    def is_eq(self, v):
-        # "pointer" equality
-        ##self.kind() == v.kind() and self.value() == v.value()
+        # by default, do pointer equality
         return id(self) == id(v)
 
     def apply(self, args):
@@ -187,7 +182,7 @@ class VBoolean(Value):
     def is_true(self):
         return self._value
         
-    def is_eq(self, v):
+    def is_equal(self, v):
         return v.is_boolean() and self.value() == v.value()
 
     
@@ -236,7 +231,7 @@ class VNumber(Value):
     def is_true(self):
         return not(not self._value)
         
-    def is_eq(self, v):
+    def is_equal(self, v):
         return v.is_number() and self.value() == v.value()
 
 
@@ -256,7 +251,7 @@ class VNil(Value):
     def value(self):
         return None
 
-    def is_eq(self, v):
+    def is_equal(self, v):
         return v.is_nil()
 
 
@@ -282,7 +277,7 @@ class VEmpty(Value):
     def value(self):
         return None
 
-    def is_eq(self, v):
+    def is_equal(self, v):
         return v.is_empty()
 
     
@@ -384,7 +379,7 @@ class VSymbol(Value):
     def value(self):
         return self._symbol
 
-    def is_eq(self, v):
+    def is_equal(self, v):
         return v.is_symbol() and self.value() == v.value()
     
     
@@ -1077,14 +1072,14 @@ def prim_minus(name, args):
     else:
         return VNumber(-v)
 
+@primitive('=', 2, 2)
+def prim_equalp(name, args):
+    return VBoolean(args[0].is_equal(args[1]))
+
 def _num_predicate(arg1, arg2, sym, pred):
     check_arg_type(sym, arg1, lambda v:v.is_number())
     check_arg_type(sym, arg2, lambda v:v.is_number())
     return VBoolean(pred(arg1.value(), arg2.value()))
-    
-@primitive('=', 2, 2)
-def prim_numequal(name, args):
-    return _num_predicate(args[0], args[1], name, lambda v1, v2: v1 == v2)
 
 @primitive('<', 2, 2)
 def prim_numless(name, args):
@@ -1275,14 +1270,6 @@ def prim_foldl(name, args):
         v = args[0].apply([v, curr.car()])
         curr = curr.cdr()
     return v
-
-@primitive('eq?', 2, 2)
-def prim_eqp(name, args):
-    return VBoolean(args[0].is_eq(args[1]))
-
-@primitive('eql?', 2, 2)
-def prim_eqlp(name, args):
-    return VBoolean(args[0].is_equal(args[1]))
 
 @primitive('empty?', 1, 1)
 def prim_emptyp(name, args):
