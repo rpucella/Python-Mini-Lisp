@@ -84,7 +84,7 @@ class TestValueBoolean(TestCase):
         b = mlisp.VBoolean(True)
         self.assertEqual(str(b), '#true')
         self.assertEqual(b.display(), '#true')
-        self.assertEqual(b.type(), 'boolean')
+        self.assertEqual(b.kind(), 'boolean')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), True)
         self.assertEqual(b.is_string(), False)
@@ -109,7 +109,7 @@ class TestValueBoolean(TestCase):
         b = mlisp.VBoolean(False)
         self.assertEqual(str(b), '#false')
         self.assertEqual(b.display(), '#false')
-        self.assertEqual(b.type(), 'boolean')
+        self.assertEqual(b.kind(), 'boolean')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), True)
         self.assertEqual(b.is_string(), False)
@@ -140,7 +140,7 @@ class TestValueString(TestCase):
         b = mlisp.VString('')
         self.assertEqual(str(b), '""')
         self.assertEqual(b.display(), '')
-        self.assertEqual(b.type(), 'string')
+        self.assertEqual(b.kind(), 'string')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), True)
@@ -168,7 +168,7 @@ class TestValueString(TestCase):
         b = mlisp.VString('Alice')
         self.assertEqual(str(b), '"Alice"')
         self.assertEqual(b.display(), 'Alice')
-        self.assertEqual(b.type(), 'string')
+        self.assertEqual(b.kind(), 'string')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), True)
@@ -209,7 +209,7 @@ class TestValueInteger(TestCase):
         b = mlisp.VNumber(0)
         self.assertEqual(str(b), '0')
         self.assertEqual(b.display(), '0')
-        self.assertEqual(b.type(), 'number')
+        self.assertEqual(b.kind(), 'number')
         self.assertEqual(b.is_number(), True)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -237,7 +237,7 @@ class TestValueInteger(TestCase):
         b = mlisp.VNumber(42)
         self.assertEqual(str(b), '42')
         self.assertEqual(b.display(), '42')
-        self.assertEqual(b.type(), 'number')
+        self.assertEqual(b.kind(), 'number')
         self.assertEqual(b.is_number(), True)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -267,7 +267,7 @@ class TestValueNil(TestCase):
         b = mlisp.VNil()
         self.assertEqual(str(b), '#nil')
         self.assertEqual(b.display(), '#nil')
-        self.assertEqual(b.type(), 'nil')
+        self.assertEqual(b.kind(), 'nil')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -297,7 +297,7 @@ class TestValueReference(TestCase):
         r = mlisp.VReference(val)
         self.assertEqual(str(r), '#(ref 42)')
         self.assertEqual(r.display(), '#(ref 42)')
-        self.assertEqual(r.type(), 'ref')
+        self.assertEqual(r.kind(), 'ref')
         self.assertEqual(r.is_number(), False)
         self.assertEqual(r.is_boolean(), False)
         self.assertEqual(r.is_string(), False)
@@ -328,7 +328,7 @@ class TestValueReference(TestCase):
         r = mlisp.VReference(val)
         self.assertEqual(str(r), '#(ref "Alice")')
         self.assertEqual(r.display(), '#(ref "Alice")')
-        self.assertEqual(r.type(), 'ref')
+        self.assertEqual(r.kind(), 'ref')
         self.assertEqual(r.is_number(), False)
         self.assertEqual(r.is_boolean(), False)
         self.assertEqual(r.is_string(), False)
@@ -359,7 +359,7 @@ class TestValueReference(TestCase):
         r = mlisp.VReference(val)
         self.assertEqual(str(r), '#(ref #(ref 42))')
         self.assertEqual(r.display(), '#(ref #(ref 42))')
-        self.assertEqual(r.type(), 'ref')
+        self.assertEqual(r.kind(), 'ref')
         self.assertEqual(r.is_number(), False)
         self.assertEqual(r.is_boolean(), False)
         self.assertEqual(r.is_string(), False)
@@ -389,7 +389,7 @@ class TestValueEmpty(TestCase):
         b = mlisp.VEmpty()
         self.assertEqual(str(b), '()')
         self.assertEqual(b.display(), '()')
-        self.assertEqual(b.type(), 'empty-list')
+        self.assertEqual(b.kind(), 'empty-list')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -422,7 +422,7 @@ class TestValueCons(TestCase):
         b = mlisp.VCons(car, cdr)
         self.assertEqual(str(b), '(42)')
         self.assertEqual(b.display(), '(42)')
-        self.assertEqual(b.type(), 'cons-list')
+        self.assertEqual(b.kind(), 'cons-list')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -456,7 +456,7 @@ class TestValueCons(TestCase):
         b = mlisp.VCons(car, c)
         self.assertEqual(str(b), '(42 84)')
         self.assertEqual(b.display(), '(42 84)')
-        self.assertEqual(b.type(), 'cons-list')
+        self.assertEqual(b.kind(), 'cons-list')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -496,7 +496,7 @@ class TestValuePrimitive(TestCase):
         b = mlisp.VPrimitive('test', prim, 2)
         self.assertEqual(str(b).startswith('#[prim '), True)
         self.assertEqual(b.display().startswith('#[prim '), True)
-        self.assertEqual(b.type(), 'primitive')
+        self.assertEqual(b.kind(), 'primitive')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -527,7 +527,7 @@ class TestValueSymbol(TestCase):
         b = mlisp.VSymbol('Alice')
         self.assertEqual(str(b), 'alice')
         self.assertEqual(b.display(), 'alice')
-        self.assertEqual(b.type(), 'symbol')
+        self.assertEqual(b.kind(), 'symbol')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -567,7 +567,7 @@ class TestValueFunction(TestCase):
         b = mlisp.VFunction([], i, e)
         self.assertEqual(str(b).startswith('#[func '), True)
         self.assertEqual(b.display().startswith('#[func '), True)
-        self.assertEqual(b.type(), 'function')
+        self.assertEqual(b.kind(), 'function')
         self.assertEqual(b.is_number(), False)
         self.assertEqual(b.is_boolean(), False)
         self.assertEqual(b.is_string(), False)
@@ -1169,145 +1169,6 @@ class TestExpParsing(TestCase):
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
-
-    def test_exp_parse_let(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
-        # empty
-        inp = _make_list([mlisp.VSymbol('let'), [], mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        # many
-        inp = _make_list([mlisp.VSymbol('let'), [[mlisp.VSymbol('a'), mlisp.VNumber(84)], [mlisp.VSymbol('b'), mlisp.VSymbol('a')]], mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 84)
-        inp = _make_list([mlisp.VSymbol('let'), [[mlisp.VSymbol('a'), mlisp.VNumber(84)], [mlisp.VSymbol('b'), mlisp.VSymbol('a')]], mlisp.VSymbol('b')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-
-
-    def test_exp_parse_letstar(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
-        # empty
-        inp = _make_list([mlisp.VSymbol('let*'), [], mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        # many
-        inp = _make_list([mlisp.VSymbol('let*'), [[mlisp.VSymbol('a'), mlisp.VNumber(84)], [mlisp.VSymbol('b'), mlisp.VSymbol('a')]], mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 84)
-        inp = _make_list([mlisp.VSymbol('let*'), [[mlisp.VSymbol('a'), mlisp.VNumber(84)], [mlisp.VSymbol('b'), mlisp.VSymbol('a')]], mlisp.VSymbol('b')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 84)
-
-
-    def test_exp_parse_and(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
-        # empty
-        inp = _make_list([mlisp.VSymbol('and')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_boolean(), True)
-        self.assertEqual(v.value(), True)
-        # many
-        inp = _make_list([mlisp.VSymbol('and'), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        inp = _make_list([mlisp.VSymbol('and'), mlisp.VNumber(1), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        inp = _make_list([mlisp.VSymbol('and'), mlisp.VNumber(1), mlisp.VNumber(2), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        inp = _make_list([mlisp.VSymbol('and'), mlisp.VNumber(0), mlisp.VNumber(2), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 0)
-        inp = _make_list([mlisp.VSymbol('and'), mlisp.VNumber(1), mlisp.VBoolean(False), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_boolean(), True)
-        self.assertEqual(v.value(), False)
-
-
-    def test_exp_parse_or(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42))])
-        # empty
-        inp = _make_list([mlisp.VSymbol('or')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_boolean(), True)
-        self.assertEqual(v.value(), False)
-        # many
-        inp = _make_list([mlisp.VSymbol('or'), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        inp = _make_list([mlisp.VSymbol('or'), mlisp.VNumber(1), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 1)
-        inp = _make_list([mlisp.VSymbol('or'), mlisp.VNumber(0), mlisp.VNumber(2), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 2)
-        inp = _make_list([mlisp.VSymbol('or'), mlisp.VNumber(0), mlisp.VNumber(0), mlisp.VSymbol('a')])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        inp = _make_list([mlisp.VSymbol('or'), mlisp.VNumber(0), mlisp.VBoolean(False), mlisp.VNumber(0)])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 0)
-
-
-    def test_exp_parse_loop(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42)),
-                                         ('=', mlisp.VPrimitive('=', mlisp.prim_numequal, 2)),
-                                         ('+', mlisp.VPrimitive('+', mlisp.prim_plus, 2))])
-        inp = _make_list([mlisp.VSymbol('loop'), mlisp.VSymbol('s'), [[mlisp.VSymbol('n'), mlisp.VSymbol('a')], [mlisp.VSymbol('sum'), mlisp.VNumber(0)]],
-                          [mlisp.VSymbol('if'), [mlisp.VSymbol('='), mlisp.VSymbol('n'), mlisp.VNumber(0)], mlisp.VSymbol('sum'),
-                           [mlisp.VSymbol('s'), [mlisp.VSymbol('+'), mlisp.VSymbol('n'), mlisp.VNumber(-1)], [mlisp.VSymbol('+'), mlisp.VSymbol('sum'), mlisp.VSymbol('n')]]]])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 903)
-
-
-    def test_exp_parse_funrec(self):
-        env = mlisp.Environment(bindings=[('a', mlisp.VNumber(42)),
-                                         ('=', mlisp.VPrimitive('=', mlisp.prim_numequal, 2)),
-                                         ('+', mlisp.VPrimitive('+', mlisp.prim_plus, 2))])
-        inp = _make_list([[mlisp.VSymbol('funrec'), mlisp.VSymbol('s'), [mlisp.VSymbol('n'), mlisp.VSymbol('sum')],
-                           [mlisp.VSymbol('if'), [mlisp.VSymbol('='), mlisp.VSymbol('n'), mlisp.VNumber(0)], mlisp.VSymbol('sum'),
-                            [mlisp.VSymbol('s'), [mlisp.VSymbol('+'), mlisp.VSymbol('n'), mlisp.VNumber(-1)], [mlisp.VSymbol('+'), mlisp.VSymbol('sum'), mlisp.VSymbol('n')]]]], mlisp.VSymbol('a'), mlisp.VNumber(0)])
-        e = mlisp.Parser().parse_exp(inp)
-        v = e.eval(env)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 903)
 
 
 #
@@ -2484,102 +2345,57 @@ class TestEngine(TestCase):
         self.assertEqual(s.cdr().cdr().cdr().is_empty(), True)
 
 
-    def test_engine_eval_sexp(self):
+    def test_engine_eval(self):
         # integer
         engine = mlisp.Engine()
         inp = _make_list(mlisp.VNumber(42))
-        v = engine.eval_sexp(inp)
+        v = engine.eval(inp)
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # application
         engine = mlisp.Engine()
         inp = _make_list([[mlisp.VSymbol('fn'), [mlisp.VSymbol('a'), mlisp.VSymbol('b')], mlisp.VSymbol('a')], mlisp.VNumber(42), mlisp.VNumber(0)])
-        v = engine.eval_sexp(inp)
+        v = engine.eval(inp)
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # define
         engine = mlisp.Engine()
         inp = _make_list([mlisp.VSymbol('def'), mlisp.VSymbol('a'), mlisp.VNumber(42)])
-        engine.eval_sexp(inp)
-        v = engine.eval_sexp(_make_list(mlisp.VSymbol('a')))
+        engine.eval(inp)
+        v = engine.eval(_make_list(mlisp.VSymbol('a')))
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
         # defun
         engine = mlisp.Engine()
         inp = _make_list([mlisp.VSymbol('def'), [mlisp.VSymbol('foo'), mlisp.VSymbol('a')], mlisp.VSymbol('a')])
-        engine.eval_sexp(inp)
-        v = engine.eval_sexp(_make_list([mlisp.VSymbol('foo'), mlisp.VNumber(42)]))
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-
-
-    def test_engine_eval(self):
-        # integer
-        engine = mlisp.Engine()
-        inp = '42'
-        v = engine.eval(inp)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        # application
-        engine = mlisp.Engine()
-        inp = '((fn (a b) a) 42 0)'
-        v = engine.eval(inp)
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        # define
-        engine = mlisp.Engine()
-        inp = '(def a 42)'
         engine.eval(inp)
-        v = engine.eval('a')
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        # defun
-        engine = mlisp.Engine()
-        inp = '(def (foo a) a)'
-        engine.eval(inp)
-        v = engine.eval('(foo 42)')
+        v = engine.eval(_make_list([mlisp.VSymbol('foo'), mlisp.VNumber(42)]))
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
 
-
-    def test_engine_bindings(self):
-        # no init bindings
+        
+    def test_engine_new_env(self):
+        # one env
         engine = mlisp.Engine()
-        v = engine.eval('type')
-        self.assertEqual(v.is_function(), True)
-        v = engine.eval('empty')
+        engine.new_env(bindings=[('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
+        v = engine.eval(engine.read('a'))
+        self.assertEqual(v.is_number(), True)
+        self.assertEqual(v.value(), 42)
+        v = engine.eval(engine.read('empty'))
         self.assertEqual(v.is_empty(), True)
-        # init bindings
-        engine = mlisp.Engine(bindings=[('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
-        v = engine.eval('a')
+        # two envs
+        engine = mlisp.Engine()
+        engine.new_env(bindings=[('x', mlisp.VNumber(42)), ('y', mlisp.VString('Alice'))])
+        engine.new_env(bindings=[('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
+        v = engine.eval(engine.read('a'))
         self.assertEqual(v.is_number(), True)
         self.assertEqual(v.value(), 42)
-        v = engine.eval('b')
+        v = engine.eval(engine.read('b'))
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
-
-
-    def test_engine_add_env(self):
-        # no init bindings
-        engine = mlisp.Engine()
-        engine.add_env([('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
-        v = engine.eval('a')
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        v = engine.eval('empty')
+        v = engine.eval(engine.read('empty'))
         self.assertEqual(v.is_empty(), True)
-        # init bindings
-        engine = mlisp.Engine(bindings=[('x', mlisp.VNumber(42)), ('y', mlisp.VString('Alice'))])
-        engine.add_env([('a', mlisp.VNumber(42)), ('b', mlisp.VString('Alice'))])
-        v = engine.eval('a')
-        self.assertEqual(v.is_number(), True)
-        self.assertEqual(v.value(), 42)
-        v = engine.eval('b')
-        self.assertEqual(v.is_string(), True)
-        self.assertEqual(v.value(), 'Alice')
-        v = engine.eval('empty')
-        self.assertEqual(v.is_empty(), True)
-        v = engine.eval('y')
+        v = engine.eval(engine.read('y'))
         self.assertEqual(v.is_string(), True)
         self.assertEqual(v.value(), 'Alice')
 

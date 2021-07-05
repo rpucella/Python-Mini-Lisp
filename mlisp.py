@@ -9,8 +9,8 @@ import functools
 import traceback
 
 class LispError(Exception):
-    def __init__(self, msg, type='lisp error'):
-        super(LispError, self).__init__('{}: {}'.format(type.upper(), msg))
+    def __init__(self, msg, kind='lisp error'):
+        super(LispError, self).__init__('{}: {}'.format(kind.upper(), msg))
 
 class LispWrongArgNoError(LispError):
     pass
@@ -82,8 +82,29 @@ class Environment:
 
 class Value:
 
-    def to_list(self):
-        raise LispError('Cannot convert to a python list of values: {}'.format(self))
+    def to_list(self, error=True):
+        """
+        Transforms a LISP list of values into a Python list of values.
+        If error is True, raise an exception if not a list, otherwise,
+        return None
+        """
+        if error:
+            raise LispError('Not a list: {}'.format(self))
+        else:
+            return None
+
+    @staticmethod
+    def from_tree(struct):
+        """
+        Transforms a Python tree  of values into a LISP list of values
+        """
+        if type(struct) == type([]):
+            result = VEmpty()
+            for r in reversed(struct):
+                result = VCons(Value.from_tree(r), result)
+            return result
+        else:
+            return struct
 
     def _str_cdr(self):
         raise LispError('Cannot use value as list terminator: {}'.format(self))
@@ -97,44 +118,44 @@ class Value:
         else:
             return(' ' * prefix) + str(self) + suffix
 
-    def type(self):
+    def kind(self):
         pass
 
     def is_number(self):
-        return self.type() == 'number'
+        return self.kind() == 'number'
 
     def is_boolean(self):
-        return self.type() == 'boolean'
+        return self.kind() == 'boolean'
 
     def is_string(self):
-        return self.type() == 'string'
+        return self.kind() == 'string'
 
     def is_symbol(self):
-        return self.type() == 'symbol'
+        return self.kind() == 'symbol'
 
     def is_nil(self):
-        return self.type() == 'nil'
+        return self.kind() == 'nil'
 
     def is_empty(self):
-        return self.type() == 'empty-list'
+        return self.kind() == 'empty-list'
     
     def is_cons(self):
-        return self.type() == 'cons-list'
+        return self.kind() == 'cons-list'
 
     def is_function(self):
-        return self.type() in('primitive', 'function')
+        return self.kind() in('primitive', 'function')
 
     def is_reference(self):
-        return self.type() == 'ref'
+        return self.kind() == 'ref'
 
     def is_atom(self):
-        return self.type() in ['number', 'primitive', 'function', 'symbol', 'string', 'boolean']
+        return self.kind() in ['number', 'primitive', 'function', 'symbol', 'string', 'boolean']
 
     def is_list(self):
-        return self.type() in ['empty-list', 'cons-list']
+        return self.kind() in ['empty-list', 'cons-list']
 
     def is_dict(self):
-        return self.type() in ['dict']
+        return self.kind() in ['dict']
 
     def is_true(self):
         return True
@@ -145,7 +166,7 @@ class Value:
 
     def is_eq(self, v):
         # "pointer" equality
-        ##self.type() == v.type() and self.value() == v.value()
+        ##self.kind() == v.kind() and self.value() == v.value()
         return id(self) == id(v)
 
     def apply(self, args):
@@ -162,7 +183,7 @@ class VBoolean(Value):
     def __str__(self):
         return '#true' if self._value else '#false'
 
-    def type(self):
+    def kind(self):
         return 'boolean'
 
     def value(self):
@@ -185,7 +206,7 @@ class VReference(Value):
     def __str__(self):
         return '#(ref {})'.format(self._value)
 
-    def type(self):
+    def kind(self):
         return 'ref'
 
     def value(self):
@@ -229,7 +250,7 @@ class VDict(Value):
                 result += v.pp(prefix=prefix + 8, suffix=sub_suffix)
         return result
         
-    def type(self):
+    def kind(self):
         return 'dict'
 
     def value(self):
@@ -275,7 +296,7 @@ class VString(Value):
     def __str__(self):
         return '"{}"'.format(self._value)
 
-    def type(self):
+    def kind(self):
         return 'string'
 
     def display(self):
@@ -301,7 +322,7 @@ class VNumber(Value):
     def __str__(self):
         return str(self._value)
 
-    def type(self):
+    def kind(self):
         return 'number'
 
     def value(self):
@@ -321,7 +342,7 @@ class VNil(Value):
     def __str__(self):
         return '#nil'
 
-    def type(self):
+    def kind(self):
         return 'nil'
 
     def is_true(self):
@@ -338,7 +359,7 @@ class VEmpty(Value):
     def __repr__(self):
         return 'VEmpty()'
 
-    def to_list(self):
+    def to_list(self, error=True):
         return []
     
     def __str__(self):
@@ -347,7 +368,7 @@ class VEmpty(Value):
     def _str_cdr(self):
         return ')'
 
-    def type(self):
+    def kind(self):
         return 'empty-list'
 
     def is_true(self):
@@ -367,10 +388,10 @@ class VCons(Value):
         self._car = car
         self._cdr = cdr
 
-    def to_list(self):
+    def to_list(self, error=True):
         curr = self
         result = []
-        while curr.type() == 'cons-list':
+        while curr.kind() == 'cons-list':
             result.append(curr.car())
             curr = curr.cdr()
         return result
@@ -397,7 +418,7 @@ class VCons(Value):
             result += v.pp(prefix=prefix + 1, skip_prefix=skip, suffix=sub_suffix)
         return result
     
-    def type(self):
+    def kind(self):
         return 'cons-list'
 
     def value(self):
@@ -427,7 +448,7 @@ class VPrimitive(Value):
         h = id(self)
         return '#[prim {}]'.format(hex(h))
 
-    def type(self):
+    def kind(self):
         return 'primitive'
 
     def value(self):
@@ -452,7 +473,7 @@ class VSymbol(Value):
     def __str__(self):
         return self._symbol
 
-    def type(self):
+    def kind(self):
         return 'symbol'
 
     def value(self):
@@ -488,7 +509,7 @@ class VFunction(Value):
         new_env = self.binding_env(values)
         return self._body.eval(new_env)
 
-    def type(self):
+    def kind(self):
         return 'function'
 
     def value(self):
@@ -673,7 +694,6 @@ class Do(Expression):
 
 # a parser is a function String -> Option('a, String)
 
-
 # perhaps create a ParserComponent class acting as a decorator
 # to have + and | and > as possible combinators?
 # cf: http://tomerfiliba.com/blog/Infix-Operators/
@@ -803,6 +823,12 @@ class Parser:
     def __init__(self):
         self._macros = {}
         self._gensym_count = 0
+
+    def register_macro(self, name, transform):
+        name = name.lower()
+        if name in self._macros:
+            raise LispError('Macro {} already exists'.format(name))
+        self._macros[name] = transform
 
     def gensym(self, prefix='gsym'):
         c = self._gensym_count
@@ -956,7 +982,7 @@ class Parser:
                          self.parse_lambda,
                          self.parse_do,
                          self.parse_letrec,
-                         self.parse_builtin_macros,
+                         self.parse_macros,
                          self.parse_apply])
         return p(s)
 
@@ -1016,7 +1042,14 @@ class Parser:
         p = self.parse_rep(self.parse_exp)
         return p(s)
 
+    
+    def parse_binding(self, s):
+        p = self.parse_list([self.parse_identifier,
+                        self.parse_exp])
+        p = parse_wrap(p, lambda x:(x[0], x[1]))
+        return p(s)
 
+    
     ############################################################
     #
     # Top level commands
@@ -1031,17 +1064,11 @@ class Parser:
 
 
     def parse_defun(self, s):
-        p1 = self.parse_list([self.parse_keyword('def'),
+        p = self.parse_list([self.parse_keyword('def'),
                               self.parse_list([self.parse_identifier],
                                               tail=self.parse_rep(self.parse_identifier))],
                              tail=self.parse_exps)
-        p1 = parse_wrap(p1, lambda x:(x[0][1][0][0], x[0][1][1], Do(x[1])))
-        p2 = self.parse_list([self.parse_keyword('defun'),
-                              self.parse_identifier,
-                              self.parse_rep(self.parse_identifier)],
-                             tail=self.parse_exps)
-        p2 = parse_wrap(p2, lambda x:(x[0][1], x[0][2], Do(x[1])))
-        p = parse_first([p1, p2])
+        p = parse_wrap(p, lambda x:(x[0][1][0][0], x[0][1][1], Do(x[1])))
         return p(s)
 
 
@@ -1050,117 +1077,19 @@ class Parser:
     # Built-in macros
     #
 
-    def parse_builtin_macros(self, s):
-        p = parse_first([self.parse_let,
-                         self.parse_letstar,
-                         self.parse_loop,
-                         self.parse_funrec,
-                         self.parse_dict,
-                         self.parse_and,
-                         self.parse_or])
-        return p(s)
-    
-    def parse_binding(self, s):
-        p = self.parse_list([self.parse_identifier,
-                        self.parse_exp])
-        p = parse_wrap(p, lambda x:(x[0], x[1]))
-        return p(s)
-
-    def parse_let(self, s):
-        p = self.parse_list([self.parse_keyword('let'),
-                             self.parse_rep(self.parse_binding)],
-                       tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_Let(x[0][1], Do(x[1])))
-        return p(s)
-
-    def parse_loop(self, s):
-        p = self.parse_list([self.parse_keyword('loop'),
-                             self.parse_identifier,
-                             self.parse_rep(self.parse_binding)],
-                       tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_Loop(x[0][1], x[0][2], Do(x[1])))
-        return p(s)
-    
-    def parse_funrec(self, s):
-        p = self.parse_list([self.parse_keyword('funrec'),
-                             self.parse_identifier,
-                             self.parse_rep(self.parse_identifier)],
-                            tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_FunRec(x[0][1], x[0][2], Do(x[1])))
-        return p(s)
-    
-    def parse_letstar(self, s):
-        p = self.parse_list([self.parse_keyword('let*'),
-                             self.parse_rep(self.parse_binding)],
-                            tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_LetStar(x[0][1], Do(x[1])))
-        return p(s)
-
-    def parse_exp_pair(self, s):
-        p = self.parse_list([self.parse_exp,
-                             self.parse_exp])
-        p = parse_wrap(p, lambda x:(x[0], x[1]))
-        return p(s)
- 
-    def parse_dict(self, s):
-        p = self.parse_list([self.parse_keyword('dict')],
-                            tail=self.parse_rep(self.parse_exp_pair))
-        p = parse_wrap(p, lambda x: self.mk_Dict(x[1]))
-        return p(s)
-    
-    def parse_and(self, s):
-        p = self.parse_list([self.parse_keyword('and')],
-                            tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_And(x[1]))
-        return p(s)
-
-    def parse_or(self, s):
-        p = self.parse_list([self.parse_keyword('or')],
-                            tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: self.mk_Or(x[1]))
-        return p(s)
-
-
-    def mk_Let(self, bindings, body):
-        params = [ id for(id, _) in bindings ]
-        args = [ e for(_, e) in bindings ]
-        return Apply(Lambda(params, body), args)
-
-    def mk_LetStar(self, bindings, body):
-        result = body
-        for(id, e) in reversed(bindings):
-            result = Apply(Lambda([id], result), [e])
-        return result
-
-    def mk_And(self, exps):
-        if exps:
-            result = exps[-1]
-            for e in reversed(exps[:-1]):
-                n = self.gensym()
-                result = self.mk_Let([(n, e)], If(Symbol(n), result, Symbol(n)))
-            return result
-        return Boolean(True)
-
-    def mk_Or(self, exps):
-        if exps:
-            result = exps[-1]
-            for e in reversed(exps[:-1]):
-                n = self.gensym()
-                result = self.mk_Let([(n, e)], If(Symbol(n), Symbol(n), result))
-            return result
-        return Boolean(False)
-
-    def mk_Dict(self, exps):
-        exps = [Apply(Symbol('list'), [x, y]) for(x, y) in exps]
-        return Apply(Symbol('make-dict'), [Apply(Symbol('list'), exps)])
-
-    def mk_Loop(self, name, bindings, body):
-        return Apply(LetRec([(name, Lambda([ n for(n, e) in bindings ], body))],
-                            Symbol(name)),
-                     [ e for(n, e) in bindings ])
-
-    def mk_FunRec(self, name, params, body):
-        return LetRec([(name, Lambda(params, body))], Symbol(name))
+    def parse_macros(self, s):
+        parsers = [parse_wrap(self.parse_list([self.parse_keyword(m)],
+                                              tail=lambda ss:ss),
+                              lambda x:(x[0][0], x[1])) for m in self._macros]
+        p = parse_first(parsers)
+        result = p(s)
+        if result:
+            # we got a match, so one of the macros must have matched
+            # this commits us
+            (name, exps) = result
+            new_exp = self._macros[name](self, name, exps)
+            return self.parse_exp(new_exp)
+        return None
 
 
 _PRIMITIVES = []
@@ -1179,7 +1108,7 @@ def primitive(name, min, max=None):
 
 @primitive('type', 1, 1)
 def prim_type(args):
-    return VSymbol(args[0].type())
+    return VSymbol(args[0].kind())
 
 
 @primitive('+', 0)
@@ -1506,71 +1435,153 @@ def prim_dict_set(args):
     return args[0].set(args[1], args[2])
 
 
+def macro_let(parser, name, exps):
+    expr = VCons(VSymbol(name), exps)
+    exps = exps.to_list()
+    if len(exps) != 2:
+        raise LispParseError('Cannot parse `{}`: too {} subexpressions in {}'.format(name, 'many' if len(exps) > 2 else 'few', expr))
+    body = exps[1]
+    bindings = exps[0].to_list(error=False)
+    if bindings is None:
+        raise LispParseError('Cannot parse `{}`: bindings not a list in {}'.format(name, expr))
+    params = []
+    args = []
+    for bindingV in bindings:
+        binding = bindingV.to_list(error=False)
+        if binding is None:
+            raise LispParseError('Cannot parse `{}`: binding {} not a list'.format(name, bindingV))
+        if len(binding) != 2:
+            raise LispParseError('Cannot parse `{}`: too {} subexpressions in binding {}'.format(name, 'many' if len(binding) > 2 else 'few', bindingV))
+        if not binding[0].is_symbol():
+            raise LispParseError('Cannot parse `{}`: binding name not a symbol in {}'.format(name, bindingV))
+        params.append(binding[0])
+        args.append(binding[1])
+    result = Value.from_tree([[VSymbol('fn'), params, body]] + args)
+    ##print('Expansion:', str(result))
+    return result
+
+
+def macro_letstar(parser, name, exps):
+    expr = VCons(VSymbol(name), exps)
+    exps = exps.to_list()
+    if len(exps) != 2:
+        raise LispParseError('Cannot parse `{}`: too {} subexpressions in {}'.format(name, 'many' if len(exps) > 2 else 'few', expr))
+    result = exps[1]
+    bindings = exps[0].to_list(error=False)
+    if bindings is None:
+        raise LispParseError('Cannot parse `{}`: bindings not a list in {}'.format(name, expr))
+    for bindingV in reversed(bindings):
+        binding = bindingV.to_list(error=False)
+        if binding is None:
+            raise LispParseError('Cannot parse `{}`: binding {} not a list'.format(name, bindingV))
+        if len(binding) != 2:
+            raise LispParseError('Cannot parse `{}`: too {} subexpressions in binding {}'.format(name, 'many' if len(binding) > 2 else 'few', bindingV))
+        if not binding[0].is_symbol():
+            raise LispParseError('Cannot parse `{}`: binding name not a symbol in {}'.format(name, bindingV))
+        result = Value.from_tree([VSymbol('let'),
+                                  [bindingV],
+                                  result])
+    ##print('Expansion:', str(result))
+    return result
+
+
+def macro_and(parser, name, exps):
+    exps = exps.to_list()
+    if exps:
+        result = exps[-1]
+        for e in reversed(exps[:-1]):
+            n = parser.gensym()
+            result = Value.from_tree([VSymbol('let'),
+                                      [[VSymbol(n), e]],
+                                      [VSymbol('if'), VSymbol(n), result, VSymbol(n)]])
+    else:
+        result = VBoolean(True)
+    ##print('Expansion:', str(result))
+    return result
+
+
+def macro_or(parser, name, exps):
+    exps = exps.to_list()
+    if exps:
+        result = exps[-1]
+        for e in reversed(exps[:-1]):
+            n = parser.gensym()
+            result = Value.from_tree([VSymbol('let'),
+                                      [[VSymbol(n), e]],
+                                      [VSymbol('if'), VSymbol(n), VSymbol(n), result]])
+    else:
+        result = VBoolean(False)
+    ##print('Expansion:', str(result))
+    return result
+
+
 class Engine:
-    def __init__(self, prompt='>', bindings=None):
+    def __init__(self):
         # basic environment
         self._env = Environment(bindings=_PRIMITIVES)
-        self._env.add('empty', VEmpty())
-        self._env.add('nil', VNil())
-        self._env.add('print', VPrimitive('print', self.prim_print, 0, None))
-        if bindings:
-            self.add_env(bindings)
         self._parser = Parser()
-        self._prompt= prompt
+        self._reader = Reader()
+        self._prompt = '>'
+        self.def_value('true', VBoolean(True))
+        self.def_value('false', VBoolean(False))
+        self.def_value('empty', VEmpty())
+        self.def_value('nil', VNil())
+        self.def_primitive('print', self.prim_print, 0, None)
+        self.register_macro('let', macro_let)
+        self.register_macro('let*', macro_letstar)
+        self.register_macro('and', macro_and)
+        self.register_macro('or', macro_or)
 
-    def prompt(self):
-        return self._prompt + ' '
-
-    def cont_prompt(self):
-        return '.' * len(self._prompt) + ' '
-
-    def set_prompt(self, prompt):
+    def prompt(self, prompt):
         self._prompt = prompt
         return self
 
-    def add_env(self, bindings):
+    def new_env(self, bindings=[]):
         self._env = Environment(bindings=bindings, previous=self._env)
         return self
 
+    def def_value(self, name, value):
+        self._env.add(name, value)
+
+    def def_primitive(self, name, prim, min, max):
+        self._env.add(name, VPrimitive(name, prim, min, max))
+
+    def register_macro(self, name, macro):
+        self._parser.register_macro(name, macro)
+
     def prim_print(self, args):
         result = ' '.join([arg.display() for arg in args])
-        self.emit_string(result)
+        self.emit(result)
 
     def read(self, s):
         if not s.strip():
             return None
-        result = Reader().parse_sexp(s)
+        result = self._reader.parse_sexp(s)
         if result:
             return result[0]
         raise LispReadError('Cannot read {}'.format(s))
         
-    def eval(self, s):
-        sexp = self.read(s)
-        return self.eval_sexp(sexp)
-
-    def eval_sexp(self, sexp, report=False):
-        (type, result) = self._parser.parse(sexp)
-        if type == 'define':
+    def eval(self, sexp, report=False):
+        (kind, result) = self._parser.parse(sexp)
+        if kind == 'define':
             (name, expr) = result
             name = canonical(name)
             v = expr.eval(self._env)
             self._env.add(name, v)
             if report:
-                ##print(';; {}'.format(name))
                 self.emit_report(name)
             return VNil()
-        if type == 'defun':
+        if kind == 'defun':
             (name, params, expr) = result
             params = [ canonical(p) for p in params ]
             v = VFunction(params, expr, self._env)
             self._env.add(name, v)
             if report:
-                ##print(';; {}'.format(name))
                 self.emit_report(name)
             return VNil()
-        if type == 'exp':
+        if kind == 'exp':
             return result.eval(self._env)
-        raise LispError('Cannot recognize top level type {}'.format(type))
+        raise LispError('Cannot recognize top level kind {}'.format(kind))
 
     def balance(self, str):
         state = 'normal'
@@ -1610,45 +1621,41 @@ class Engine:
         try:
             sexp = self.read(full_input)
             if sexp:
-                v = self.eval_sexp(sexp, report=True)
-                self.emit_result(v)
+                v = self.eval(sexp, report=True)
+                if not v.is_nil():
+                    self.emit(str(v))
         except LispError as e:
             self.emit_error(e)
 
-    def emit_string(self, s):
+    def emit(self, s):
         print(s)
 
     def emit_error(self, e):
-        self.emit_string(';; ' + str(e))
+        self.emit(';; ' + str(e))
 
     def emit_report(self, msg):
-        self.emit_string(';; ' + msg)
+        self.emit(';; ' + msg)
 
-    def emit_result(self, v):
-        if not v.is_nil():
-            self.emit_string(v.pp())
-
-            
     def repl(self, on_error=None):
         """
         A simple read-eval-print loop 
         running on the current engine
         """
-        self.add_env([])   # add working environment
+        self.new_env()   # working environment
         done = False
         while not done:
             try:
                 # to deal with win_unicode_console flushing problem
                 full_input = ''
-                pr = self.prompt()
+                pr = self._prompt
                 while True:
-                    print(pr, end='')
+                    print(pr + ' ', end='')
                     sys.stdout.flush()
                     s = input()  #.decode(_DEFAULT_ENCODING)
                     full_input += s + ' '
                     if self.balance(full_input):
                         break
-                    pr = self.cont_prompt()   # use continuation prompt after first iteration
+                    pr = '.' * len(pr)   # use continuation prompt after first iteration
                 self.process_line(full_input)
             except EOFError:
                 done = True
