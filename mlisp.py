@@ -9,8 +9,8 @@ import functools
 import traceback
 
 class LispError(Exception):
-    def __init__(self, msg, kind='lisp error'):
-        super(LispError, self).__init__('{}: {}'.format(kind.upper(), msg))
+    def __init__(self, msg):
+        super(LispError, self).__init__('LISP ERROR: {}'.format(msg))
 
 class LispWrongArgNoError(LispError):
     pass
@@ -119,7 +119,7 @@ class Value:
             return(' ' * prefix) + str(self) + suffix
 
     def kind(self):
-        pass
+        return None
 
     def is_number(self):
         return self.kind() == 'number'
@@ -145,18 +145,12 @@ class Value:
     def is_function(self):
         return self.kind() in('primitive', 'function')
 
-    def is_reference(self):
-        return self.kind() == 'ref'
-
     def is_atom(self):
         return self.kind() in ['number', 'primitive', 'function', 'symbol', 'string', 'boolean']
 
     def is_list(self):
         return self.kind() in ['empty-list', 'cons-list']
-
-    def is_dict(self):
-        return self.kind() in ['dict']
-
+    
     def is_true(self):
         return True
 
@@ -195,96 +189,6 @@ class VBoolean(Value):
     def is_eq(self, v):
         return v.is_boolean() and self.value() == v.value()
 
-
-class VReference(Value):
-    def __init__(self, v):
-        self._value = v
-
-    def __repr__(self):
-        return 'VReference({})'.format(self._value)
-
-    def __str__(self):
-        return '#(ref {})'.format(self._value)
-
-    def kind(self):
-        return 'ref'
-
-    def value(self):
-        return self._value
-
-    def set_value(self, v):
-        self._value = v
-
-    def is_equal(self, v):
-        return v.is_reference() and self.value().is_equal(v.value())
-
-
-class VDict(Value):
-    def __init__(self, entries):
-        self._value = entries
-
-    def __repr__(self):
-        return 'VDict({})'.format(self._value)
-
-    def __str__(self):
-        entries = ['({})'.format(' '.join([ str(x) for x in v])) for v in self._value]
-        return '#(dict {})'.format(' '.join(entries))
-
-    def pp(self, prefix=0, suffix='', skip_prefix=False):
-        result = ''
-        if not skip_prefix:
-            result += ' ' * prefix
-        result += '#(dict '
-        # we could sort, but we don't have a sort order on arbitrary Value...
-        for i,(k, v) in enumerate(self._value):
-            skip =(i == 0)
-            last =(i == len(self._value) - 1)
-            sub_suffix = ')))' + suffix if last else ')\n'
-            result += '(' if skip else(' ' *(prefix + 7)) + '('
-            if k.is_string() or k.is_symbol() or k.is_number() or k.is_boolean():
-                key_text = k.pp(prefix=prefix + 8, skip_prefix=True, suffix=' ')
-                result += key_text
-                result += v.pp(prefix=prefix + 8 + len(key_text), skip_prefix=True, suffix=sub_suffix)
-            else:
-                result += k.pp(prefix=prefix + 8, skip_prefix=True, suffix='\n')
-                result += v.pp(prefix=prefix + 8, suffix=sub_suffix)
-        return result
-        
-    def kind(self):
-        return 'dict'
-
-    def value(self):
-        return self._value
-
-    def is_equal(self, v):
-        # TODO: fix this comparison!
-        return v.is_dict() and self.value().is_equal(v.value())
-
-    def lookup(self, v):
-        for(key, value) in self._value:
-            if key.is_equal(v):
-                return value
-        raise LispError('Cannot find key {} in dictionary'.format(v))
-
-    def update(self, k, v):
-        result = []
-        for(key, value) in self._value:
-            if key.is_equal(k):
-                result.append((key, v))
-            else:
-                result.append((key, value))
-        else:
-            result.append((k, v))
-        return VDict(result)
-
-    def set(self, k, v):
-        for(i,(key, value)) in enumerate(self._value):
-            if key.is_equal(k):
-                self._value[i] =(key, v)
-        else:
-            self._value.append((k,v))
-        return VNil()
-    
     
 class VString(Value):
     def __init__(self, s):
@@ -742,7 +646,7 @@ def parse_sexp_wrap(p, f):
         result = p(s)
         if not result:
             return None
-        return(f(result[0]), result[1])
+        return (f(result[0]), result[1])
     return parser
 
 
@@ -750,8 +654,15 @@ def parse_sexp_wrap(p, f):
 class Reader:
 
     def __init__(self):
-        pass
+        self._macros = {}
 
+    def register_macro(self, name, transform):
+        name = name.lower()
+        if name in self._macros:
+            raise LispError('Macro {} already exists'.format(name))
+        self._macros[name] = transform
+
+        
     # SEXPRESSIONS parser
 
     def parse_token(self, token):
@@ -802,6 +713,7 @@ class Reader:
                          self.parse_string,
                          self.parse_boolean,
                          self.parse_symbol,
+                         self.parse_macros,
                          parse_sexp_wrap(parse_seq([self.parse_token(r"'"),
                                                     self.parse_sexp]),
                                          lambda x: VCons(VSymbol('quote'), VCons(x[1], VEmpty()))),
@@ -817,6 +729,37 @@ class Reader:
                                          lambda x: VCons(x[0], x[1])),
                          self.parse_success(VEmpty())])
         return p(s)
+
+    
+    def parse_hash_lparen(self, s):
+        return self.parse_token(r'#\(')(s)
+
+    
+    def parse_macro_name(self, name):
+        cname = canonical(name)
+        def parser(s):
+            ss = s.strip()
+            if canonical(ss).startswith(cname):
+                return(cname, ss[len(cname):])
+            return None
+        return parser
+
+    
+    def parse_macros(self, s):
+        parsers = [parse_sexp_wrap(parse_seq([self.parse_hash_lparen,
+                                              self.parse_macro_name(m),
+                                              self.parse_sexps,
+                                              self.parse_rparen]),
+                                   lambda x:(x[1], x[2])) for m in self._macros]
+        p = parse_first(parsers)
+        result = p(s)
+        if result:
+            # we got a match, so one of the macros must have matched
+            # this commits us
+            ((name, exps), rest) = result
+            print('matched reader macro =', name)
+            return (self._macros[name](self, name, exps), rest)
+        return None
     
 
 class Parser:
@@ -1050,6 +993,21 @@ class Parser:
         return p(s)
 
     
+    def parse_macros(self, s):
+        parsers = [parse_wrap(self.parse_list([self.parse_keyword(m)],
+                                              tail=lambda ss:ss),
+                              lambda x:(x[0][0], x[1])) for m in self._macros]
+        p = parse_first(parsers)
+        result = p(s)
+        if result:
+            # we got a match, so one of the macros must have matched
+            # this commits us
+            (name, exps) = result
+            new_exp = self._macros[name](self, name, exps)
+            return self.parse_exp(new_exp)
+        return None
+
+    
     ############################################################
     #
     # Top level commands
@@ -1070,26 +1028,6 @@ class Parser:
                              tail=self.parse_exps)
         p = parse_wrap(p, lambda x:(x[0][1][0][0], x[0][1][1], Do(x[1])))
         return p(s)
-
-
-    ############################################################
-    #
-    # Built-in macros
-    #
-
-    def parse_macros(self, s):
-        parsers = [parse_wrap(self.parse_list([self.parse_keyword(m)],
-                                              tail=lambda ss:ss),
-                              lambda x:(x[0][0], x[1])) for m in self._macros]
-        p = parse_first(parsers)
-        result = p(s)
-        if result:
-            # we got a match, so one of the macros must have matched
-            # this commits us
-            (name, exps) = result
-            new_exp = self._macros[name](self, name, exps)
-            return self.parse_exp(new_exp)
-        return None
 
 
 _PRIMITIVES = []
@@ -1383,58 +1321,6 @@ def prim_nilp(args):
     return VBoolean(args[0].is_nil())
 
 
-@primitive('ref?', 1, 1)
-def prim_refp(args):
-    return VBoolean(args[0].is_reference())
-
-@primitive('ref', 1, 1)
-def prim_ref(args):
-    return VReference(args[0])
-
-@primitive('ref-get', 1, 1)
-def prim_ref_get(args):
-    check_arg_type('ref-get', args[0], lambda v: v.is_reference())
-    return args[0].value()
-
-@primitive('ref-set', 2, 2)
-def prim_ref_set(args):
-    check_arg_type('ref-set', args[0], lambda v: v.is_reference())
-    args[0].set_value(args[1])
-    return VNil()
-
-
-@primitive('dict?', 1, 1)
-def prim_dictp(args):
-    return VBoolean(args[0].is_dict())
-    
-@primitive('make-dict', 1, 1)
-def prim_make_dict(args):
-    check_arg_type('make-dict', args[0], lambda v:v.is_list())
-    entries = [ tuple(v.to_list()) for v in args[0].to_list() ]
-    for entry in entries:
-        if len(entry) != 2:
-            raise LispError('Wrong number of element in entry {}'.format(entry))
-    return VDict(entries)
-
-@primitive('get', 2, 2)
-def prim_dict_get(args):
-    check_arg_type('get', args[0], lambda v:v.is_dict())
-    check_arg_type('get', args[1], lambda v:v.is_atom())
-    return args[0].lookup(args[1])
-
-@primitive('update', 3, 3)
-def prim_dict_update(args):
-    check_arg_type('update', args[0], lambda v:v.is_dict())
-    check_arg_type('update', args[1], lambda v:v.is_atom())
-    return args[0].update(args[1], args[2])
-
-@primitive('set', 3, 3)
-def prim_dict_set(args):
-    check_arg_type('set', args[0], lambda v:v.is_dict())
-    check_arg_type('set', args[1], lambda v:v.is_atom())
-    return args[0].set(args[1], args[2])
-
-
 def macro_let(parser, name, exps):
     expr = VCons(VSymbol(name), exps)
     exps = exps.to_list()
@@ -1515,6 +1401,55 @@ def macro_or(parser, name, exps):
     return result
 
 
+#
+# Sample extension: references
+#
+
+class VReference(Value):
+    def __init__(self, v):
+        self._value = v
+
+    def __repr__(self):
+        return 'VReference({})'.format(self._value)
+
+    def __str__(self):
+        return '#(ref {})'.format(self._value)
+
+    def kind(self):
+        return 'reference'
+
+    def value(self):
+        return self._value
+
+    def set_value(self, v):
+        self._value = v
+
+    def is_equal(self, v):
+        # ??
+        return v.kind() == 'reference' and self.value().is_equal(v.value())
+
+def prim_refp(args):
+    return VBoolean(args[0].kind() == 'reference')
+
+def prim_ref(args):
+    return VReference(args[0])
+
+def prim_ref_get(args):
+    check_arg_type('ref-get', args[0], lambda v: v.kind() == 'reference')
+    return args[0].value()
+
+def prim_ref_set(args):
+    check_arg_type('ref-set!', args[0], lambda v: v.kind() == 'reference')
+    args[0].set_value(args[1])
+    return VNil()
+
+def reader_ref(reader, name, exps):
+    exps = exps.to_list()
+    if len(exps) != 1:
+        raise LispReadError('Cannot read `{}`: too {} items'.format(name, 'many' if len(exps) > 1 else 'few'))
+    return Value.from_tree([VSymbol('ref'), exps[0]])
+
+
 class Engine:
     def __init__(self):
         # basic environment
@@ -1527,10 +1462,17 @@ class Engine:
         self.def_value('empty', VEmpty())
         self.def_value('nil', VNil())
         self.def_primitive('print', self.prim_print, 0, None)
+        # sample macros
         self.register_macro('let', macro_let)
         self.register_macro('let*', macro_letstar)
         self.register_macro('and', macro_and)
         self.register_macro('or', macro_or)
+        # references
+        self.def_primitive('ref?', prim_refp, 1, 1)
+        self.def_primitive('ref', prim_ref, 1, 1)
+        self.def_primitive('ref-get', prim_ref_get, 1, 1)
+        self.def_primitive('ref-set!', prim_ref_set, 2, 2)
+        self.register_reader('ref', reader_ref)
 
     def prompt(self, prompt):
         self._prompt = prompt
@@ -1548,6 +1490,9 @@ class Engine:
 
     def register_macro(self, name, macro):
         self._parser.register_macro(name, macro)
+
+    def register_reader(self, name, macro):
+        self._reader.register_macro(name, macro)
 
     def prim_print(self, args):
         result = ' '.join([arg.display() for arg in args])
