@@ -651,6 +651,7 @@ class Reader:
 
     def __init__(self):
         self._macros = {}
+        self._hook = lambda s: None
 
     def register_macro(self, name, transform):
         name = name.lower()
@@ -658,6 +659,12 @@ class Reader:
             raise LispError('Macro {} already exists'.format(name))
         self._macros[name] = transform
 
+    def hook(self, fn):
+        """
+        Add a hook at the beginning of the reader that can read some specific stuff not in a standard read format.
+        The function should return a (Value, string) on successful read, and None on failure.
+        """
+        self._hook = fn
         
     # SEXPRESSIONS parser
 
@@ -689,7 +696,7 @@ class Reader:
         return parse_sexp_wrap(p, lambda x: VNumber(int(x)))(s)
     
     def parse_symbol(self, s):
-        identifier = r'[^"\s#()]+'   # [A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
+        identifier = r'[^"\s#()\']+'   # [A-Za-z0-9-+/*_:.?!@$]*[A-Za-z-+/*_:.?!@$#][A-Za-z0-9-+/*_:.?!@$]*'
         p = self.parse_token(identifier)
         return parse_sexp_wrap(p, lambda x: VSymbol(x))(s)
 
@@ -704,8 +711,10 @@ class Reader:
         p = self.parse_token(r'#([tT][rR][uU][eE])|#([fF][aA][lL][sS][eE])')
         return parse_sexp_wrap(p, lambda x: VBoolean(x.lower() == '#true'))(s)
 
+
     def parse_sexp(self, s):
-        p = parse_first([self.parse_number,
+        p = parse_first([self._hook,
+                         self.parse_number,
                          self.parse_string,
                          self.parse_boolean,
                          self.parse_symbol,
@@ -1436,6 +1445,16 @@ def reader_ref(reader, name, exps):
         raise LispReadError('Cannot read `{}`: too {} items'.format(name, 'many' if len(exps) > 1 else 'few'))
     return Value.from_tree([VSymbol('ref'), exps[0]])
 
+def flag_hook(s):
+    """
+    Sample flag hook for the Reader.
+    It treats --foo as a self-quoting symbol --foo.
+    """
+    ss = s.strip()
+    m = re.match(r'--[^"\s#()\']+', ss)
+    if m:
+        return(VCons(VSymbol('quote'), VCons(VSymbol(m.group()), VEmpty())), ss[m.end():])
+    return None
 
 class Engine:
     def __init__(self):
@@ -1443,6 +1462,7 @@ class Engine:
         self._env = Environment(bindings=_PRIMITIVES)
         self._parser = Parser()
         self._reader = Reader()
+        self._reader.hook(flag_hook)
         self._prompt = '>'
         self.def_value('true', VBoolean(True))
         self.def_value('false', VBoolean(False))
