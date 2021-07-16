@@ -1445,6 +1445,94 @@ def reader_ref(reader, name, exps):
         raise LispReadError('Cannot read `{}`: too {} items'.format(name, 'many' if len(exps) > 1 else 'few'))
     return Value.from_tree([VSymbol('ref'), exps[0]])
 
+
+#
+# Sample extension: dictionaries
+#
+
+class VDict(Value):
+    def __init__(self, entries):
+        self._value = entries
+
+    def __repr__(self):
+        return 'VDict({})'.format(self._value)
+
+    def __str__(self):
+        entries = ['({})'.format(' '.join([ str(x) for x in v])) for v in self._value]
+        return '#(dict {})'.format(' '.join(entries))
+
+    def pp(self, prefix=0, suffix='', skip_prefix=False):
+        result = ''
+        if not skip_prefix:
+            result += ' ' * prefix
+        result += '#(dict '
+        # we could sort, but we don't have a sort order on arbitrary Value...
+        for i,(k, v) in enumerate(self._value):
+            skip =(i == 0)
+            last =(i == len(self._value) - 1)
+            sub_suffix = ')))' + suffix if last else ')\n'
+            result += '(' if skip else(' ' *(prefix + 7)) + '('
+            if k.is_string() or k.is_symbol() or k.is_number() or k.is_boolean():
+                key_text = k.pp(prefix=prefix + 8, skip_prefix=True, suffix=' ')
+                result += key_text
+                result += v.pp(prefix=prefix + 8 + len(key_text), skip_prefix=True, suffix=sub_suffix)
+            else:
+                result += k.pp(prefix=prefix + 8, skip_prefix=True, suffix='\n')
+                result += v.pp(prefix=prefix + 8, suffix=sub_suffix)
+        return result
+        
+    def kind(self):
+        return 'dictionary'
+
+    def value(self):
+        return self._value
+
+    def is_equal(self, v):
+        # TODO: fix this comparison!
+        return v.is_dict() and self.value().is_equal(v.value())
+
+    def lookup(self, v):
+        for(key, value) in self._value:
+            if key.is_equal(v):
+                return value
+        raise LispError('Cannot find key {} in dictionary'.format(v))
+
+    def set(self, k, v):
+        for(i,(key, value)) in enumerate(self._value):
+            if key.is_equal(k):
+                self._value[i] = (key, v)
+        else:
+            self._value.append((k,v))
+        return VNil()
+
+    def keys(self):
+        return [key for (key, value ) in self._value]
+
+def prim_dictp(name, args):
+    return VBoolean(args[0].kind() == 'dictionary')
+    
+def prim_dict(name, args):
+    entries = [ tuple(v.to_list()) for v in args ]
+    for entry in entries:
+        if len(entry) != 2:
+            raise LispError('Wrong number of element in entry {}'.format(entry))
+    return VDict(entries)
+
+def prim_dict_get(name, args):
+    check_arg_type(name, args[0], lambda v:v.kind() == 'dictionary')
+    check_arg_type(name, args[1], lambda v:v.is_atom())
+    return args[0].lookup(args[1])
+
+def prim_dict_set(name, args):
+    check_arg_type(name, args[0], lambda v:v.kind() == 'dictionary')
+    check_arg_type(name, args[1], lambda v:v.is_atom())
+    return args[0].set(args[1], args[2])
+
+def prim_dict_keys(name, args):
+    check_arg_type(name, args[0], lambda v:v.kind() == 'dictionary')
+    return Value.from_tree(args[0].keys())
+
+
 def flag_hook(s):
     """
     Sample flag hook for the Reader.
@@ -1480,6 +1568,12 @@ class Engine:
         self.def_primitive('ref-get', prim_ref_get, 1, 1)
         self.def_primitive('ref-set!', prim_ref_set, 2, 2)
         self.register_reader('ref', reader_ref)
+        # dictionaries
+        self.def_primitive('dict?', prim_dictp, 1, 1)
+        self.def_primitive('dict', prim_dict, 0, None)
+        self.def_primitive('dict-get', prim_dict_get, 2, 2)
+        self.def_primitive('dict-set!', prim_dict_set, 3, 3)
+        self.def_primitive('dict-keys', prim_dict_keys, 1, 1)
 
     def prompt(self, prompt):
         self._prompt = prompt
