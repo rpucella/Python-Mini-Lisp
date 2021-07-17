@@ -77,3 +77,4 @@ git checkout $BRANCH_MAIN || exit 1
 git pull || exit 1
 git merge $BRANCH_DEV || exit 1
 git push || exit 1
+git checkout $BRANCH_DEV || exit 1

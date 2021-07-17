@@ -1545,13 +1545,13 @@ def flag_hook(s):
     return None
 
 class Engine:
-    def __init__(self):
+    def __init__(self, prompt='>'):
+        self._default_prompt = prompt
         # basic environment
         self._env = Environment(bindings=_PRIMITIVES)
         self._parser = Parser()
         self._reader = Reader()
         self._reader.hook(flag_hook)
-        self._prompt = '>'
         self.def_value('true', VBoolean(True))
         self.def_value('false', VBoolean(False))
         self.def_value('empty', VEmpty())
@@ -1575,9 +1575,8 @@ class Engine:
         self.def_primitive('dict-set!', prim_dict_set, 3, 3)
         self.def_primitive('dict-keys', prim_dict_keys, 1, 1)
 
-    def prompt(self, prompt):
-        self._prompt = prompt
-        return self
+    def prompt(self):
+        return self._default_prompt
 
     def new_env(self, bindings=[]):
         self._env = Environment(bindings=bindings, previous=self._env)
@@ -1693,7 +1692,7 @@ class Engine:
             try:
                 # to deal with win_unicode_console flushing problem
                 full_input = ''
-                pr = self._prompt
+                pr = self.prompt()
                 while True:
                     print(pr + ' ', end='')
                     sys.stdout.flush()
