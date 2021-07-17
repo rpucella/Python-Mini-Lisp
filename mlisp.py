@@ -1650,7 +1650,7 @@ class Engine:
             v = expr.eval(self._env)
             self._env.add(name, v)
             if report:
-                self.emit_report(name)
+                self._emit_report(name)
             return VNil()
         if kind == 'defun':
             (name, params, expr) = result
@@ -1658,7 +1658,7 @@ class Engine:
             v = VFunction(params, expr, self._env)
             self._env.add(name, v)
             if report:
-                self.emit_report(name)
+                self._emit_report(name)
             return VNil()
         if kind == 'exp':
             return result.eval(self._env)
@@ -1704,18 +1704,32 @@ class Engine:
             if sexp:
                 v = self.eval(sexp, report=True)
                 if not v.is_nil():
-                    self.emit(str(v))
+                    self.emit_value(v)
         except LispError as e:
             self.emit_error(e)
 
     def emit(self, s):
+        """
+        Generic print a string to standard output.
+        """
         print(s)
 
+    def _emit_report(self, msg):
+        self.emit(';; ' + msg)
+
     def emit_error(self, e):
+        """
+        Print an error.
+        Override if standard output treats errors specially.
+        """
         self.emit(';; ' + str(e))
 
-    def emit_report(self, msg):
-        self.emit(';; ' + msg)
+    def emit_value(self, v):
+        """
+        Print a value.
+        Override if standard output treats values specially (i.e., as a result).
+        """
+        self.emit(str(v))
 
     def repl(self, on_error=None):
         """
