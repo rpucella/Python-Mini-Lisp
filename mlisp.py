@@ -971,9 +971,9 @@ class Parser:
 
     def parse_letrec(self, s):
         p = self.parse_list([self.parse_keyword('letrec'),
-                             self.parse_rep(self.parse_binding)],
-                            tail=self.parse_exps)
-        p = parse_wrap(p, lambda x: LetRec(x[0][1], Do(x[1])))
+                             self.parse_rep(self.parse_binding),
+                             self.parse_exp])
+        p = parse_wrap(p, lambda x: LetRec(x[1], x[2]))
         return p(s)
 
     
@@ -1366,6 +1366,35 @@ def macro_letstar(parser, name, exps):
     ##print('Expansion:', str(result))
     return result
 
+def macro_loop(parser, name, exps):
+    expr = VCons(VSymbol(name), exps)
+    exps = exps.to_list()
+    if len(exps) < 3:
+        raise LispParseError('Cannot parse `{}`: too few subexpressions in {}'.format(name, expr))
+    if not exps[0].is_symbol():
+        raise LispParseError('Cannot parse `{}`: loop name not a symbol in {}'.format(name, exps[0]))
+    loop_name = exps[0]
+    bindings = exps[1].to_list(error=False)
+    body = exps[2:]
+    if bindings is None:
+        raise LispParseError('Cannot parse `{}`: bindings not a list in {}'.format(name, expr))
+    bindings_names = []
+    bindings_values = []
+    for bindingV in bindings:
+        binding = bindingV.to_list(error=False)
+        if binding is None:
+            raise LispParseError('Cannot parse `{}`: binding {} not a list'.format(name, bindingV))
+        if len(binding) != 2:
+            raise LispParseError('Cannot parse `{}`: too {} subexpressions in binding {}'.format(name, 'many' if len(binding) > 2 else 'few', bindingV))
+        if not binding[0].is_symbol():
+            raise LispParseError('Cannot parse `{}`: binding name not a symbol in {}'.format(name, bindingV))
+        bindings_names.append(binding[0])
+        bindings_values.append(binding[1])
+    result = Value.from_tree([[VSymbol('letrec'),
+                               [[loop_name, [VSymbol('fn'), bindings_names, [VSymbol('do')] + body]]],
+                               loop_name]] + bindings_values)
+    ##print('Expansion:', str(result))
+    return result
 
 def macro_and(parser, name, exps):
     exps = exps.to_list()
@@ -1562,6 +1591,7 @@ class Engine:
         self.register_macro('let*', macro_letstar)
         self.register_macro('and', macro_and)
         self.register_macro('or', macro_or)
+        self.register_macro('loop', macro_loop)
         # references
         self.def_primitive('ref?', prim_refp, 1, 1)
         self.def_primitive('ref', prim_ref, 1, 1)
