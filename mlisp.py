@@ -10,7 +10,7 @@ import traceback
 
 class LispError(Exception):
     def __init__(self, msg):
-        super(LispError, self).__init__('LISP ERROR: {}'.format(msg))
+        super().__init__('ERROR: {}'.format(msg))
 
 class LispWrongArgNoError(LispError):
     pass
@@ -1546,10 +1546,11 @@ def prim_dict_keys(name, args):
 class Engine:
     def __init__(self, prompt='>'):
         self._default_prompt = prompt
-        # basic environment
-        self._env = Environment(bindings=_PRIMITIVES)
+        # reader/parser have state
         self._parser = Parser()
         self._reader = Reader()
+        # basic environment
+        self._env = Environment(bindings=_PRIMITIVES)
         ##self._reader.hook(flag_hook)
         self.def_value('true', VBoolean(True))
         self.def_value('false', VBoolean(False))
@@ -1577,6 +1578,12 @@ class Engine:
     def prompt(self):
         return self._default_prompt
 
+    def reader(self):
+        return self._reader
+
+    def parser(self):
+        return self._parser
+
     def new_env(self, bindings=[]):
         self._env = Environment(bindings=bindings, previous=self._env)
         return self
@@ -1588,10 +1595,10 @@ class Engine:
         self._env.add(name, VPrimitive(name, prim, min, max))
 
     def register_macro(self, name, macro):
-        self._parser.register_macro(name, macro)
+        self.parser().register_macro(name, macro)
 
     def register_reader(self, name, macro):
-        self._reader.register_macro(name, macro)
+        self.reader().register_macro(name, macro)
 
     def prim_print(self, name, args):
         result = ' '.join([arg.display() for arg in args])
@@ -1600,13 +1607,13 @@ class Engine:
     def read(self, s):
         if not s.strip():
             return None
-        result = self._reader.parse_sexp(s)
+        result = self.reader().parse_sexp(s)
         if result:
             return result[0]
         raise LispReadError('Cannot read {}'.format(s))
         
     def eval(self, sexp, report=False):
-        (kind, result) = self._parser.parse(sexp)
+        (kind, result) = self.parser().parse(sexp)
         if kind == 'define':
             (name, expr) = result
             name = canonical(name)
