@@ -1703,8 +1703,9 @@ class Engine:
             sexp = self.read(full_input)
             if sexp:
                 v = self.eval(sexp, report=True)
-                if not v.is_nil():
-                    self.emit_value(v)
+                self.emit_value(v)
+            else:
+                self.emit_value(VNil())   #??
         except LispError as e:
             self.emit_error(e)
 
@@ -1729,7 +1730,8 @@ class Engine:
         Print a value.
         Override if standard output treats values specially (i.e., as a result).
         """
-        self.emit(str(v))
+        if not v.is_nil():
+            self.emit(str(v))
 
     def repl(self, on_error=None):
         """
