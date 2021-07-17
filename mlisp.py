@@ -1532,17 +1532,16 @@ def prim_dict_keys(name, args):
     check_arg_type(name, args[0], lambda v:v.kind() == 'dictionary')
     return Value.from_tree(args[0].keys())
 
-
-def flag_hook(s):
-    """
-    Sample flag hook for the Reader.
-    It treats --foo as a self-quoting symbol --foo.
-    """
-    ss = s.strip()
-    m = re.match(r'--[^"\s#()\']+', ss)
-    if m:
-        return(VCons(VSymbol('quote'), VCons(VSymbol(m.group()), VEmpty())), ss[m.end():])
-    return None
+# def flag_hook(s):
+#     """
+#     Sample flag hook for the Reader.
+#     It treats --foo as a self-quoting symbol --foo.
+#     """
+#     ss = s.strip()
+#     m = re.match(r'--[^"\s#()\']+', ss)
+#     if m:
+#         return(VCons(VSymbol('quote'), VCons(VSymbol(m.group()), VEmpty())), ss[m.end():])
+#     return None
 
 class Engine:
     def __init__(self, prompt='>'):
@@ -1551,7 +1550,7 @@ class Engine:
         self._env = Environment(bindings=_PRIMITIVES)
         self._parser = Parser()
         self._reader = Reader()
-        self._reader.hook(flag_hook)
+        ##self._reader.hook(flag_hook)
         self.def_value('true', VBoolean(True))
         self.def_value('false', VBoolean(False))
         self.def_value('empty', VEmpty())
